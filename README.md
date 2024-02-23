@@ -1,3 +1,10 @@
+# Git Submodule (Web API)
+
+to pull in the web api, please run the following: 
+
+git submodule init
+git submodule update
+
 # Running Program
 
 1. docker compose build
