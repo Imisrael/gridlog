@@ -1,0 +1,166 @@
+version: '3.9'
+#volumes:
+#  griddb:
+
+services:
+
+  griddb-server:
+    build:
+      context: griddb-server
+      dockerfile: Dockerfile
+    container_name: griddb-server
+    user: root
+    expose:
+      - '10001'
+      - '10010'
+      - '10020'
+      - '10040'
+      - '20001'
+      - '41999'
+    environment:
+      NOTIFICATION_MEMBER: 1
+      GRIDDB_CLUSTER_NAME: myCluster
+    healthcheck:
+        test: ["CMD", "gs_sh"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+
+  web-api:
+    build:
+      context: web-api
+      dockerfile: Dockerfile
+    container_name: web-api
+    ports:
+      - '8080:8080'
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--location",
+          "http://localhost:8080/griddb/v2/myCluster/dbs/public/containers/test_container/rows",
+          "--header",
+          "Content-Type: application/json",
+          "--header",
+          "Authorization: Basic YWRtaW46YWRtaW4=",
+          "--data",
+          "{\"limit\": 100}"
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  log-agent:
+    build:
+      context: agent
+      dockerfile: Dockerfile
+    container_name: log-agent
+    restart: unless-stopped
+    hostname: agent
+    volumes:
+    - /var/log:/logs
+    - /home/israel/docker/appdata/npm/data/logs:/nginx/logs
+    depends_on:
+      griddb-server:
+        condition: service_healthy
+      web-api:
+        condition: service_healthy
+  
+  log-processor:
+    build:
+      dockerfile: ./Dockerfile.log-processor
+    container_name: log-processor
+    depends_on:
+      griddb-server:
+        condition: service_healthy
+      log-agent:
+        condition: service_started
+
+  log-viewer-backend:
+    build:
+      dockerfile: ./Dockerfile.log-viewer-backend
+    container_name: log-viewer-backend
+    depends_on:
+      griddb-server:
+        condition: service_healthy
+    ports:
+      - '8090:8090'
+
+  log-viewer-frontend:
+    build:
+      context: ./log-viewer/frontend
+      dockerfile: Dockerfile
+    container_name: log-viewer-frontend
+    depends_on:
+      griddb-server:
+        condition: service_healthy
+    ports:
+      - '2828:2828'
+    expose: 
+      - '2828'
+
+  agent_demo_1:
+    build:
+      context: extra-agents 
+      dockerfile: Dockerfile
+    container_name: agentDemoOne
+    hostname: agentDemoOne
+    profiles:
+      - donotstart
+    depends_on:
+      griddb-server:
+        condition: service_healthy
+      web-api:
+        condition: service_healthy
+    environment:
+      LOGGING_TYPE: apache
+
+  agent_demo_2:
+    build:
+      context: extra-agents
+      dockerfile: Dockerfile
+    container_name: agentDemoTwo
+    hostname: agentDemoTwo
+    profiles:
+      - donotstart
+    depends_on:
+      griddb-server:
+        condition: service_healthy
+      web-api:
+        condition: service_healthy
+    environment:
+      LOGGING_TYPE: cpu
+
+  agent_demo_3:
+    build:
+      context: extra-agents
+      dockerfile: Dockerfile
+    container_name: agentDemoThree
+    hostname: agentDemoThree
+    profiles:
+      - donotstart
+    depends_on:
+      griddb-server:
+        condition: service_healthy
+      web-api:
+        condition: service_healthy
+    environment:
+      LOGGING_TYPE: web
+
+  agent_demo_4:
+    build:
+      context: extra-agents
+      dockerfile: Dockerfile
+    container_name: agentDemoFour
+    hostname: agentDemoFour
+    profiles:
+      - donotstart
+    depends_on:
+      griddb-server:
+        condition: service_healthy
+      web-api:
+        condition: service_healthy
+    environment:
+      LOGGING_TYPE: http

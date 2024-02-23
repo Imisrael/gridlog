@@ -1,0 +1,3 @@
+[submodule "web-api/webapi"]
+	path = web-api/webapi
+	url = https://github.com/griddb/webapi.git

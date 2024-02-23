@@ -1,0 +1,22 @@
+{ 
+  "logs": [
+
+    {
+      "type":"tests",
+      "path": "log-half-second.txt",
+      "interval": 1000,
+      "columns": [
+        {"name": "log", "type": "STRING"  }
+      ]
+    }, 
+
+    {
+      "type": "server",
+      "path": "/nginx/logs/fallback_access.log",
+      "interval": 2000,
+      "columns": [
+        {"name": "log", "type": "STRING"  }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{ 
+  "logs": [
+    {
+      "type":"apache",
+      "path": "log.txt",
+      "interval": 1000
+    },
+    {
+      "type":"longer-test",
+      "path": "log-second.txt",
+      "interval": 1000
+    }
+  ]
+}

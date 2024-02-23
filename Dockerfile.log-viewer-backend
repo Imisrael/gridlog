@@ -1,0 +1,15 @@
+FROM maven
+
+WORKDIR /app
+
+COPY ./log-viewer/backend/pom.xml ./
+COPY conf ./conf
+
+COPY ./log-viewer/backend/src ./src
+# COPY mvnw /app/mvnw
+# COPY .mvn /app/.mvn
+
+# RUN /app/mvnw verify
+RUN mvn dependency:resolve
+RUN mvn package
+CMD ["java", "-jar", "target/Log-Viewer-1.jar"]

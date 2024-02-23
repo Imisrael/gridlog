@@ -1,0 +1,11 @@
+{
+  "clusters" : [
+    {
+      "name" : "myCluster",
+      "mode" : "FIXED_LIST",
+      "transactionMember": "griddb-server:10001",
+      "sqlMember": "griddb-server:20001",
+      "providerUrl": null
+    }
+  ]
+}

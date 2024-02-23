@@ -1,0 +1,7 @@
+.activeSelection {
+    border: 2px solid gold !important;
+  }
+
+.activeButton {
+  background-color: gold !important;
+}
