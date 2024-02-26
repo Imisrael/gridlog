@@ -33,14 +33,14 @@ services:
       dockerfile: Dockerfile
     container_name: web-api
     ports:
-      - '8080:8080'
+      - '8080:8081'
     healthcheck:
       test:
         [
           "CMD",
           "curl",
           "--location",
-          "http://localhost:8080/griddb/v2/myCluster/dbs/public/containers/test_container/rows",
+          "http://localhost:8081/griddb/v2/myCluster/dbs/public/containers/test_container/rows",
           "--header",
           "Content-Type: application/json",
           "--header",
