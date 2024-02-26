@@ -1,4 +1,4 @@
-FROM griddbnet/java-log-course-agent
+FROM griddbnet/java-log-course-agent:latest
 
 WORKDIR /app
 

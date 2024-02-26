@@ -6,10 +6,14 @@ cat << EOT > ./conf/logs.json
 { 
   "logs": [
     {
-      "type":"$LOGGING_TYPE",
+      "type":"tests",
       "path": "log.txt",
-      "interval": 1000
+      "interval": 1000,
+      "columns": [
+        {"name": "log", "type": "STRING"  }
+      ]
     }
   ]
 }
+
 EOT

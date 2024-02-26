@@ -1,14 +1,12 @@
 { 
   "logs": [
     {
-      "type":"apache",
-      "path": "log.txt",
-      "interval": 1000
-    },
-    {
-      "type":"longer-test",
-      "path": "log-second.txt",
-      "interval": 1000
+      "type":"tests",
+      "path": "log-half-second.txt",
+      "interval": 1000,
+      "columns": [
+        {"name": "log", "type": "STRING"  }
+      ]
     }
   ]
 }
