@@ -2,8 +2,8 @@
 
 to pull in the web api, please run the following: 
 
-git submodule init
-git submodule update
+1. git submodule init
+2. git submodule update
 
 # Running Program
 
