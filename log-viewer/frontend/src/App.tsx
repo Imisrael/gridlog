@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { RadioButtonContext } from './components/RadioButtonContext'
-import { DateRangeContext } from './components/DateRangeContext';
+import * as React from 'react';
+
+import { RadioButtonContext } from './components/RadioButtonContext.tsx'
+import { DateRangeContext } from './components/DateRangeContext.tsx';
+import useDidMountEffect from './hooks/useDidMountEffect.tsx';
 
 import {
   generateColumns,
@@ -8,53 +10,34 @@ import {
   extractHostname,
   extractLogType,
   extractContainerNameFromSchema
-} from './utils/General';
+} from './utils/General.tsx';
 
-import { HOST, emptyOptions, limitOptions } from './utils/constants';
+import { HOST, emptyOptions, limitOptions } from './utils/constants.tsx';
 import styles from "./components/styles.module.css";
 
 import DataTableNonAgg from './components/DataTableNonAgg';
-import TimePicker from './components/TimePicker'
-import Sidebar from './components/Sidebar';
-import QueryBuilder from './components/QueryBuilder';
+import TimePicker from './components/TimePicker.tsx'
+import Sidebar from './components/Sidebar.tsx';
+import QueryBuilder from './components/QueryBuilder.tsx';
 import Chart from './components/Chart';
-
-import { Tabs } from 'flowbite-react';
-import moment from 'moment';
-
-import { Button, Dropdown } from 'semantic-ui-react'
 import DataTableAgg from './components/DataTableAgg';
 
+import { Tabs } from 'flowbite-react';
 
-const useDidMountEffect = (func, deps) => {
-  const didMount = useRef(false);
-  useEffect(() => {
-    if (didMount.current) {
-      func();
-    } else {
-      didMount.current = true;
-    }
-  }, deps);
-};
-
-const initialRows = [
-  { idx: 1, numOfRows: 1, high: 1 },
-]
+import { Button, Dropdown } from 'semantic-ui-react'
 
 const App = () => {
-
-  const useMountEffect = (fun) => useEffect(fun, [])
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(true);
-  const [logData, setLogData] = useState(null);
-  const [LogTypes, setLogTypes] = useState([]);
-  const [Hostnames, setHostnames] = useState([]);
-  const [userLimit, setUserLimit] = useState(100);
+  const [error, setError] = React.useState(null);
+  const [isLoaded, setIsLoaded] = React.useState(true);
+  const [logData, setLogData] = React.useState(null);
+  const [LogTypes, setLogTypes] = React.useState([]);
+  const [Hostnames, setHostnames] = React.useState([]);
+  const [userLimit, setUserLimit] = React.useState(100);
 
 
-  useEffect(() => { document.body.style.backgroundColor = 'rgb(226 232 240)' }, [])
+  React.useEffect(() => { document.body.style.backgroundColor = 'rgb(226 232 240)' }, [])
 
-  useMountEffect(() => {
+  React.useEffect(() => {
     console.log("getContainers: ", `${HOST}getContainers`)
     fetch(`${HOST}getContainers`)
       .then(res => res.json())
@@ -62,7 +45,7 @@ const App = () => {
         (result) => {
           const arrLogTypes = ["none"];
           const arrHostnames = ["none"];
-          result.forEach(container => {
+          result.forEach((container: string) => {
             arrLogTypes.push(extractLogType(container))
             arrHostnames.push(extractHostname(container))
           })
@@ -78,14 +61,15 @@ const App = () => {
       )
   }, [])
 
-  const [schema, setSchema] = useState(null);
-  const [headerNames, setHeaderNames] = useState(null);
-  const [containersToBeShown, setContainersToBeShown] = useState([]);
-  const [progressPending, setProgressPending] = useState(true);
+  const [schema, setSchema] = React.useState(null);
+  const [headerNames, setHeaderNames] = React.useState(null);
+  const [containersToBeShown, setContainersToBeShown] = React.useState([]);
+  const [progressPending, setProgressPending] = React.useState(true);
 
   const queryGridDB = (hostname, logtype, range) => {
     setProgressPending(true);
     let start = range.start.valueOf();
+    console.log("start: ", start)
     let end = range.end.valueOf();
 
     // if both Logype and Hostname are still none, do not fetch
@@ -109,11 +93,12 @@ const App = () => {
           const listOfHeaderNames = generateColumns(schemas);
           setHeaderNames(listOfHeaderNames);
 
+          const rawSchema = schemas;
           const updatedSchema = {}
-          const schemaKeys = Object.keys(schemas);
+          const schemaKeys = Object.keys(rawSchema);
           schemaKeys.forEach(key => {
             let updatedKey = extractContainerNameFromSchema(key)
-            updatedSchema[updatedKey] = schemas[key]
+            updatedSchema[updatedKey] = rawSchema[key]
           })
           console.log(updatedSchema)
           setSchema(updatedSchema)
@@ -142,8 +127,8 @@ const App = () => {
       )
   }
 
-  const [tables, setTables] = useState(null);
-  useEffect(() => {
+  const [tables, setTables] = React.useState(null);
+  React.useEffect(() => {
     if (containersToBeShown.length > 0) {
       const tables = containersToBeShown.map(logtype =>
 
@@ -161,29 +146,29 @@ const App = () => {
   }, [headerNames, logData, containersToBeShown, progressPending])
 
 
-  const [selectHostname, setSelectedHostname] = useState("none");
-  const [selectLogType, setSelectedLogType] = useState("none");
-  const now = new Date();
+  const [selectHostname, setSelectedHostname] = React.useState("none");
+  const [selectLogType, setSelectedLogType] = React.useState("none");
 
-  const start = moment(
-    new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
-  );
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
 
-  const end = moment(start).add(1, 'days').subtract(1, 'seconds');
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  end.setSeconds(end.getSeconds() - 1);
 
-  const [range, setRange] = useState({
+  const [range, setRange] = React.useState({
     start: start,
     end: end,
   });
 
   // Query Builder section
-  const [containerOptions, setContainerOptions] = useState(emptyOptions);
-  const [userSelectedContainer, setUserSelectedContainer] = useState("");
-  const [columnOptions, setColumnOptions] = useState(emptyOptions);
-  const [inputsToDisabled, setInputsToDisabled] = useState(true);
-  const [lastRow, setLastRow] = useState(1);
+  const [containerOptions, setContainerOptions] = React.useState(emptyOptions);
+  const [userSelectedContainer, setUserSelectedContainer] = React.useState("");
+  const [columnOptions, setColumnOptions] = React.useState(emptyOptions);
+  const [inputsToDisabled, setInputsToDisabled] = React.useState(true);
+  const [lastRow, setLastRow] = React.useState(1);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (schema !== null) {
 
       const updatedKeys = Object.keys(schema)
@@ -194,11 +179,11 @@ const App = () => {
     }
   }, [schema])
 
-  const handleContainerSelection = (e, { value }) => {
+  const handleContainerSelection = (event: React.SyntheticEvent<HTMLElement> , { value }) => {
 
     const cols = schema[value];
     setUserSelectedContainer(value);
-    const opts = cols.map(val => {
+    const opts = cols.map((val: { name: any; type: any; }) => {
       return { "key": val.name, "text": val.name, "value": val.name, "type": val.type }
     })
 
@@ -206,17 +191,18 @@ const App = () => {
     setColumnOptions(opts)
   }
 
-  const handleLimitOption = (e, { value }) => {
+  const handleLimitOption = (event: React.SyntheticEvent<HTMLElement> ,{value}) => {
     console.log("limit option: ", value);
     setUserLimit(value);
   }
 
   useDidMountEffect(() => {
+    console.log("yes siir use did mount effect")
     //  console.log("range, selecthostname, range: ", selectHostname, selectLogType, range)
     queryGridDB(selectHostname, selectLogType, range);
   }, [range, selectHostname, selectLogType])
 
-  const addNumOfRows = (newNum) => {
+  const addNumOfRows = (newNum: number) => {
     newNum++
     let rows = []
     let max = 1;
@@ -229,7 +215,7 @@ const App = () => {
     setNumOfQueryRows(rows.length)
   }
 
-  const removeRow = (idx) => {
+  const removeRow = (idx: number) => {
     const newRows = queryRows.filter((row) => row.idx !== idx)
 
     // find max index to assign the lock button to
@@ -247,13 +233,17 @@ const App = () => {
     setQueries(newQueries)
   }
 
-  const [queryRows, setQueryRows] = useState(initialRows);
-  const [numOfQueryRows, setNumOfQueryRows] = useState(1);
-  const [queries, setQueries] = useState([])
-  const [selected, setSelected] = useState(false)
-  const [advancedQueryResults, setAdvancedQueryResults] = useState(null);
+  const initialRows = [
+    { idx: 1, numOfRows: 1, high: 1 },
+  ]
 
-  const sendQuery = (col, oper, val, idx, containerName, columnType) => {
+  const [queryRows, setQueryRows] = React.useState(initialRows);
+  const [numOfQueryRows, setNumOfQueryRows] = React.useState(1);
+  const [queries, setQueries] = React.useState([])
+  const [selected, setSelected] = React.useState(false)
+  const [advancedQueryResults, setAdvancedQueryResults] = React.useState(null);
+
+  const sendQuery = (col: any, oper: any, val: any, idx: string | number, containerName: any, columnType: any) => {
     //console.log("Sending query index: ", idx, queries.length);
     let t = []
     if (queries.length >= 1) {
@@ -301,7 +291,7 @@ const App = () => {
     setSelected(false);
     setQueries([]);
 
-    const dropdowns = document.getElementsByClassName("query-dropdown");
+    const dropdowns = document.querySelectorAll<HTMLElement>(".query-dropdown");
 
     const activeSelection = "2px solid gold"
     for (let item of dropdowns) {
@@ -312,15 +302,15 @@ const App = () => {
     }
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     console.log("User sleected containeR: ", userSelectedContainer, extractLogType(userSelectedContainer))
     console.log("Advaned query results: ", advancedQueryResults)
   }, [advancedQueryResults, headerNames, userSelectedContainer])
 
-  const [aggregation, setAggregation] = useState(false);
-  const [interval, setInterval] = useState("hour");
-  const [aggColumn, setAggColumn] = useState(null);
-  const [interpolation, setInterpolation] = useState("null")
+  const [aggregation, setAggregation] = React.useState(false);
+  const [interval, setInterval] = React.useState("hour");
+  const [aggColumn, setAggColumn] = React.useState(null);
+  const [interpolation, setInterpolation] = React.useState("null")
 
   const handleAggregation = () => {
     setAggregation(!aggregation);
@@ -396,7 +386,7 @@ const App = () => {
                 <div className='flex justify-center py-5'>
                   <Button.Group>
                     <Button
-                      color="info"
+                      color="instagram"
                       onClick={handleAggregation}
                       disabled={inputsToDisabled}
                       className={aggregation ? styles.activeButton : ""}
@@ -404,7 +394,7 @@ const App = () => {
                       Aggregation
                     </Button>
                     <Button
-                      color="info"
+                      color="instagram"
                       value="hour"
                       onClick={e => handleInterval(e)}
                       disabled={!aggregation}
@@ -413,9 +403,9 @@ const App = () => {
                       Hour
                     </Button>
                     <Button
-                      color="info"
+                      color="instagram"
                       value="day"
-                      onClick={e => handleInterval(e, "day")}
+                      onClick={e => handleInterval(e)}
                       disabled={!aggregation}
                       className={interval.includes("day") ? styles.activeButton : ""}
                     >
@@ -432,16 +422,14 @@ const App = () => {
                     addNumOfRows={addNumOfRows}
                     removeRow={removeRow}
                     lastRow={lastRow}
-                    setLastRow={setLastRow}
+                    schema={schema}
                     sendQuery={sendQuery}
                     userSelectedContainer={userSelectedContainer}
                     columnOptions={columnOptions}
                     inputsToDisabled={inputsToDisabled}
                     setInputsToDisabled={setInputsToDisabled}
-                    setContainerOptions={setContainerOptions}
                     selected={selected}
                     setSelected={setSelected}
-                    schema={schema}
                     aggregation={aggregation}
                     setAggColumn={setAggColumn}
                     setInterpolation={setInterpolation}
@@ -464,7 +452,8 @@ const App = () => {
                   < DataTableNonAgg
                     columns={headerNames[userSelectedContainer]}
                     data={advancedQueryResults["results"]}
-                    title={userSelectedContainer}
+                    title={userSelectedContainer} 
+                    progressPending={undefined}                  
                   />
                   :
                   <></>
@@ -477,6 +466,7 @@ const App = () => {
                       data={advancedQueryResults["results"]}
                       title={userSelectedContainer}
                       aggColumn={aggColumn}
+                      progressPending={undefined} 
                     />
 
                     < Chart data={advancedQueryResults} />
