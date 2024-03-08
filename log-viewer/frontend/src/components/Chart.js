@@ -1,5 +1,5 @@
 import React from 'react';
-import { msToTime } from '../utils/General';
+import { msToTime } from '../utils/General.tsx';
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, } from 'recharts';
 

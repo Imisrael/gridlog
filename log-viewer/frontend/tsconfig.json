@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "ESNext",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+
+
+  "include": [
+    "./src/**/*",   
+    "globals.d.ts"  
+  ]
+}

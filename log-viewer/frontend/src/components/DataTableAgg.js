@@ -1,7 +1,7 @@
 import DataTable from './DataTableBase';
 import {
   msToTime,
-} from '../utils/General';
+} from '../utils/General.tsx';
 
 function DataTableAgg({ data, progressPending, title, aggColumn }) {
 
