@@ -46,7 +46,7 @@ class LogReader extends Thread {
         GridDBWriter gWriter = new GridDBWriter(hostname, logtype, path, griddbURL);
         gWriter.createRAWLOGWrites(); //creates container for container info (if doesn't exist)
         String cn = getContainerName(hostname, logtype);
-        gridDB.createRAWLOGContainer(cn, "30", "5"); // creates container for specific logs
+        gridDB.createRAWLOGContainer(cn, expiration_time, part_unit); // creates container for specific logs
 
         // string for raw log container
         StringBuilder str = new StringBuilder();
