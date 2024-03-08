@@ -386,7 +386,6 @@ const App = () => {
                 <div className='flex justify-center py-5'>
                   <Button.Group>
                     <Button
-                      color="instagram"
                       onClick={handleAggregation}
                       disabled={inputsToDisabled}
                       className={aggregation ? styles.activeButton : ""}
@@ -394,7 +393,6 @@ const App = () => {
                       Aggregation
                     </Button>
                     <Button
-                      color="instagram"
                       value="hour"
                       onClick={e => handleInterval(e)}
                       disabled={!aggregation}
@@ -403,7 +401,6 @@ const App = () => {
                       Hour
                     </Button>
                     <Button
-                      color="instagram"
                       value="day"
                       onClick={e => handleInterval(e)}
                       disabled={!aggregation}
