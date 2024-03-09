@@ -114,9 +114,7 @@ public class GridDBController {
             }
             str.append(" AND ");
         }
-        //SELECT * FROM LOG_agent_server WHERE timestamp > TO_TIMESTAMP_MS(1706895960000) AND timestamp < TO_TIMESTAMP_MS(1707068760000) AND statusCode = 404  GROUP BY RANGE (timestamp) EVERY (1, HOUR);
-
-        // SELECT ts,count(humidity) FROM device1 WHERE ts > TO_TIMESTAMP_MS(1594515625984) AND ts < TO_TIMESTAMP_MS(1595040779336) GROUP BY RANGE (ts) EVERY (1, DAY)
+        //SELECT timestamp,count(httpMethod), avg(contentLength), min(contentLength), max(contentLength) FROM LOG_agent_server WHERE timestamp > TO_TIMESTAMP_MS(1709884800000) AND timestamp < TO_TIMESTAMP_MS(1709971199000) AND httpMethod LIKE '%POST%' GROUP BY RANGE (timestamp) EVERY (1, hour) FILL (linear);
 
         str.append(" GROUP BY RANGE (timestamp) EVERY (1, " + first.interval + ")" );
         str.append(" FILL (" + first.interpolation + ")");

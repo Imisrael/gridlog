@@ -40,7 +40,7 @@ public class GridDB {
         }
     }
 
-    public void createRAWLOGContainer(String container_name, String expiration_time, String time_unit ) {
+    public void createRAWLOGContainer(String container_name, String expiration_time, String part_unit ) {
         try {
             Statement stmt = con.createStatement(); 
             StringBuilder queryString = new StringBuilder();
@@ -48,8 +48,8 @@ public class GridDB {
             queryString.append(container_name);
             queryString.append("(ts TIMESTAMP NOT NULL, hostname STRING, logtype STRING, value STRING, path STRING )");
             queryString.append("WITH");
-            queryString.append("(expiration_type='PARTITION',expiration_time=30,expiration_time_unit='DAY')");
-            queryString.append("PARTITION BY RANGE (ts) EVERY (30, DAY);");
+            queryString.append("(expiration_type='PARTITION',expiration_time="+expiration_time+",expiration_time_unit='DAY')");
+            queryString.append("PARTITION BY RANGE (ts) EVERY ("+part_unit+", DAY);");
             System.out.println(queryString.toString());
             stmt.executeUpdate(queryString.toString());
 
