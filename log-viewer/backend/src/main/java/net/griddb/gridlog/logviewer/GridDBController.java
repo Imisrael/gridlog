@@ -21,7 +21,7 @@ public class GridDBController {
 
     static public class QueryList {
         // [[LOG_agent_nginx, statusCode, <, 666]]
-
+    
         public String containerName;
         public String logtype;
         public String operator;
@@ -37,25 +37,27 @@ public class GridDBController {
     }
 
     static public class AggQueryResult {
-  //timestamp,count(statusCode), avg(contentLength), min(contentLength), max(contentLength)
-        public Date timestamp;
-        public Integer count;
-        public Double avg;
-        public Double min;
-        public Double max;
-    }
+        //timestamp,count(statusCode), avg(contentLength), min(contentLength), max(contentLength)
+              public Date timestamp;
+              public Integer count;
+              public Double avg;
+              public Double min;
+              public Double max;
+          }
+      
 
     private String generateQuery(List<QueryList> queries) {
         StringBuilder str = new StringBuilder();
         QueryList first = queries.get(0);
         int i = 0;
         str.append("SELECT * FROM " + first.containerName + " WHERE ");
+
         for (QueryList val : queries) {
             System.out.println(val.valuetype);
             str.append(val.logtype);
-
+    
             str.append(" " + val.operator + " ");
-
+    
             if (val.operator.equals("LIKE")) {
                 str.append("'%" + val.value + "%'");
             } else if (val.value.contains("TIMESTAMP")) {
@@ -70,58 +72,57 @@ public class GridDBController {
             if (++i == queries.size()) {
                 break;
             }
-            str.append(" AND ");
+            str.append(" AND "); 
         }
-        // default limit is 100. highest is 5000
+        // default limit is 100. highest is 10000
         str.append(" LIMIT " + first.limit);
         str.append(";");
         return str.toString();
     }
+    
+    
+private String generateAggQuery(List<QueryList> queries) {
+    StringBuilder str = new StringBuilder();
+    QueryList first = queries.get(0);
+    int i = 0;
 
 
-    private String generateAggQuery(List<QueryList> queries) {
-        StringBuilder str = new StringBuilder();
-        QueryList first = queries.get(0);
-        int i = 0;
+    //SELECT count(humidity),avg(humidity),min(humidity),max(humidity) FROM
+    str.append("SELECT timestamp,count(" + first.logtype + "),");
+    str.append(" avg(" + first.aggColumn + "),");
+    str.append(" min(" + first.aggColumn + "),");
+    str.append(" max(" + first.aggColumn + ")");
+    str.append(" FROM " + first.containerName + " WHERE ");
+    str.append("timestamp > TO_TIMESTAMP_MS(" + first.start + ") AND ");
+    str.append("timestamp < TO_TIMESTAMP_MS(" + first.end + ") AND ");
+    for (QueryList val : queries) {
+        str.append(val.logtype);
 
+        str.append(" " + val.operator + " ");
 
-        //SELECT count(humidity),avg(humidity),min(humidity),max(humidity) FROM
-        str.append("SELECT timestamp,count(" + first.logtype + "),");
-        str.append(" avg(" + first.aggColumn + "),");
-        str.append(" min(" + first.aggColumn + "),");
-        str.append(" max(" + first.aggColumn + ")");
-        str.append(" FROM " + first.containerName + " WHERE ");
-        str.append("timestamp > TO_TIMESTAMP_MS(" + first.start + ") AND ");
-        str.append("timestamp < TO_TIMESTAMP_MS(" + first.end + ") AND ");
-        for (QueryList val : queries) {
-            str.append(val.logtype);
-
-            str.append(" " + val.operator + " ");
-
-            if (val.operator.equals("LIKE")) {
-                str.append("'%" + val.value + "%'");
-            } else if (val.value.contains("TIMESTAMP")) {
-                str.append(val.value);
-            } else if (val.valuetype.contains("number")) { //number type doesn't need single quotes around value for query
-                str.append( val.value);
-            } else {
-                System.out.println("last else statement is true");
-                str.append("'" + val.value + "'");
-            }
-        
-            if (++i == queries.size()) {
-                break;
-            }
-            str.append(" AND ");
+        if (val.operator.equals("LIKE")) {
+            str.append("'%" + val.value + "%'");
+        } else if (val.value.contains("TIMESTAMP")) {
+            str.append(val.value);
+        } else if (val.valuetype.contains("number")) { //number type doesn't need single quotes around value for query
+            str.append( val.value);
+        } else {
+            System.out.println("last else statement is true");
+            str.append("'" + val.value + "'");
         }
-        //SELECT timestamp,count(httpMethod), avg(contentLength), min(contentLength), max(contentLength) FROM LOG_agent_server WHERE timestamp > TO_TIMESTAMP_MS(1709884800000) AND timestamp < TO_TIMESTAMP_MS(1709971199000) AND httpMethod LIKE '%POST%' GROUP BY RANGE (timestamp) EVERY (1, hour) FILL (linear);
-
-        str.append(" GROUP BY RANGE (timestamp) EVERY (1, " + first.interval + ")" );
-        str.append(" FILL (" + first.interpolation + ")");
-        str.append(";");
-        return str.toString();
+    
+        if (++i == queries.size()) {
+            break;
+        }
+        str.append(" AND ");
     }
+    //SELECT timestamp,count(httpMethod), avg(contentLength), min(contentLength), max(contentLength) FROM LOG_agent_server WHERE timestamp > TO_TIMESTAMP_MS(1709884800000) AND timestamp < TO_TIMESTAMP_MS(1709971199000) AND httpMethod LIKE '%POST%' GROUP BY RANGE (timestamp) EVERY (1, hour) FILL (linear);
 
+    str.append(" GROUP BY RANGE (timestamp) EVERY (1, " + first.interval + ")" );
+    str.append(" FILL (" + first.interpolation + ")");
+    str.append(";");
+    return str.toString();
+}
 
 
     @RequestMapping(value = "/getContainers", method = RequestMethod.GET)
@@ -153,21 +154,22 @@ public class GridDBController {
         return ResponseEntity.ok(retval);
     }
 
-    @PostMapping("/advancedQuery")
-    public ResponseEntity<?> advancedQuery(@RequestParam boolean aggregation , @RequestBody List<QueryList> data) {
-        String queryStr = "";
-        HashMap<String, List<?>> result = new HashMap<>();
-        if (aggregation) {
-            queryStr = generateAggQuery(data);
-            result = gridDB.queryFromAggBuilder(queryStr);
-        } else {
-            queryStr = generateQuery(data);
-            result = gridDB.queryFromBuilder(queryStr);
-        }
-        
-        System.out.println(queryStr);
-  
-        return ResponseEntity.ok(result);
+
+@PostMapping("/advancedQuery")
+public ResponseEntity<?> advancedQuery(@RequestParam boolean aggregation , @RequestBody List<QueryList> data) {
+    String queryStr = "";
+    HashMap<String, List<?>> result = new HashMap<>();
+    if (aggregation) {
+        queryStr = generateAggQuery(data);
+        result = gridDB.queryFromAggBuilder(queryStr);
+    } else {
+        queryStr = generateQuery(data);
+        result = gridDB.queryFromBuilder(queryStr);
     }
+    
+    System.out.println(queryStr);
+
+    return ResponseEntity.ok(result);
+}
 
 }
