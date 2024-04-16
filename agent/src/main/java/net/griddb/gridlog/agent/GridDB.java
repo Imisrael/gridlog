@@ -46,10 +46,11 @@ public class GridDB {
             StringBuilder queryString = new StringBuilder();
             queryString.append("CREATE TABLE IF NOT EXISTS ");
             queryString.append(container_name);
-            queryString.append("(ts TIMESTAMP NOT NULL, hostname STRING, logtype STRING, value STRING, path STRING )");
-            queryString.append("WITH");
-            queryString.append("(expiration_type='PARTITION',expiration_time="+expiration_time+",expiration_time_unit='DAY')");
-            queryString.append("PARTITION BY RANGE (ts) EVERY ("+part_unit+", DAY);");
+          //  queryString.append("(ts TIMESTAMP PRIMARY KEY NOT NULL, hostname STRING, logtype STRING, value STRING, path STRING )");
+            queryString.append("(ts TIMESTAMP NOT NULL, hostname STRING, logtype STRING, value STRING, path STRING );");
+            // queryString.append("WITH");
+            // queryString.append("(expiration_type='PARTITION',expiration_time="+expiration_time+",expiration_time_unit='DAY')");
+            // queryString.append("PARTITION BY RANGE (ts) EVERY ("+part_unit+", DAY);");
             System.out.println(queryString.toString());
             stmt.executeUpdate(queryString.toString());
 
@@ -59,15 +60,5 @@ public class GridDB {
         }
     }
 
-    public void writeLog (String value, String container_name) {
-        try {
-            Statement stmt = con.createStatement();
-            stmt.executeUpdate(container_name);
-
-        } catch (Exception e) {
-            System.out.println("Error writing log with JDBC");
-            e.printStackTrace();
-        }
-    }
 
 }
