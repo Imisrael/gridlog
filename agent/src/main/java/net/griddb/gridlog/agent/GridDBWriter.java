@@ -118,7 +118,7 @@ class GridDBWriter {
             cn = getContainerName(hostname, logtype);
         }
 
-        System.out.println("Writing to GridDB: " + "Container Name: " + cn + " value: " + value.length());
+       // System.out.println("Writing to GridDB: " + "Container Name: " + cn + " value: " + value.length());
 
         RequestBody body = RequestBody.create(value, JSON);
 
