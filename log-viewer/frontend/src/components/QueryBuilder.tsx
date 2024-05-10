@@ -8,7 +8,7 @@ const QueryBuilder = (props:
     index: number;
     removeRow: (idx: number) => void;
     addNumOfRows: (currNumOfRows: number) => void;
-    numOfRows: any;
+    numOfRows: number;
     aggregation: boolean;
     lastRow: number;
     userSelectedContainer: string;
