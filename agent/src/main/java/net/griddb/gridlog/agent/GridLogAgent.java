@@ -16,10 +16,11 @@ class GridLogAgent {
 
     public GridLogAgent (String hostname, String griddbURL) {
         this.griddbURL = griddbURL;
+        this.hostname = hostname;
 
 		try {
             String SystemName = InetAddress.getLocalHost().getHostName();
-            GridLogAgent.hostname = SystemName;
+            this.hostname = SystemName;
         }
         catch (Exception E) {
             System.err.println(E.getMessage());
@@ -54,13 +55,13 @@ class GridLogAgent {
         HashMap<String, ConfigParser.LogsConfig> logging = configParser.parseConfig("./conf/logs.json");
 
         for (LogsConfig mapElement : logging.values()) {
-            System.out.println("Logging Valuyes: " + GridLogAgent.hostname);
-            LogReader logReader = new LogReader(mapElement, GridLogAgent.hostname, logAgent.griddbURL);
+            System.out.println("Logging Values: " + logAgent.hostname);
+            LogReader logReader = new LogReader(mapElement, logAgent.hostname, logAgent.griddbURL);
             logReader.start();
         }
 
         for (LogsConfig mapElement : logging.values()) {
-            LogReader logReader = new LogReader(mapElement, GridLogAgent.hostname, logAgent.griddbURL);
+            LogReader logReader = new LogReader(mapElement, logAgent.hostname, logAgent.griddbURL);
             try {
                 logReader.join();
             } catch (InterruptedException e) {

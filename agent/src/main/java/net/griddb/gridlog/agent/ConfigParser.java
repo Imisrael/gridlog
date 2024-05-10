@@ -15,7 +15,6 @@ class ConfigParser {
         long interval;
         String expiration_time;
         String part_unit;
-        ArrayList<HashMap <String, String>> schema;
     };
 
     HashMap<String, LogsConfig> rules;
@@ -40,14 +39,6 @@ class ConfigParser {
             rule.interval = (long)jsonRule.get("interval");
             rule.expiration_time = (String)jsonRule.get("expiration_time");
             rule.part_unit = (String)jsonRule.get("part_unit");
-            rule.schema = new ArrayList<>();
-            for (Object jsonColumn_ : (JSONArray)jsonRule.get("columns")) {
-                JSONObject jsonColumn = (JSONObject)jsonColumn_;
-                HashMap<String, String> column = new HashMap<>();
-                column.put("name", (String)jsonColumn.get("name"));
-                column.put("type", (String)jsonColumn.get("type"));
-                rule.schema.add(column);
-            }
             rules.put(rule.type, rule);
         }
          
