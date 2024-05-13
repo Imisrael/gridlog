@@ -348,7 +348,6 @@ const App = () => {
                     {tables}
                   </div>
                 </div>
-              <h1><Link to="config" > Config Page</Link></h1>
               </Tabs.Item>
 
 

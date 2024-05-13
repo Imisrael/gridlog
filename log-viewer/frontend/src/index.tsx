@@ -2,31 +2,15 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App.tsx'
-import UserConfig from './routes/UserConfig.tsx';
-import ErrorPage from "./routes/error-page";
 import 'semantic-ui-css/semantic.min.css'
 import reportWebVitals from './reportWebVitals.js';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path:"config",
-    element: <UserConfig />,
-  }
-])
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <App />
   </React.StrictMode>
 );
 
