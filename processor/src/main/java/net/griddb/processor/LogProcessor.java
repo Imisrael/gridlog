@@ -52,7 +52,7 @@ public class LogProcessor
         Pattern p = Pattern.compile(format);
         Matcher matcher = p.matcher(log.value);
 
-        store.putContainer(containerName, new ContainerInfo(containerName, ContainerType.COLLECTION, mapper.columnList(rules.get(log.logtype).schema), false), false);
+       // store.putContainer(containerName, new ContainerInfo(containerName, ContainerType.COLLECTION, mapper.columnList(rules.get(log.logtype).schema), false), false);
         Row row = store.createRow(new ContainerInfo(containerName, ContainerType.COLLECTION, mapper.columnList(rules.get(log.logtype).schema), false));
 
         if (!matcher.matches()) {

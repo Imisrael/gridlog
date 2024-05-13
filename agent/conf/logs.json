@@ -5,22 +5,29 @@
       "type":"tests",
       "path": "log-half-second.txt",
       "interval": 1000,
-      "expiration_time": "10",
-      "part_unit": "5",
       "columns": [
-        {"name": "log", "type": "STRING"  }
-      ]
+        {"name": "timestamp", "type": "TIMESTAMP", "index": ["tree"]},
+        {"name": "hostname", "type": "STRING", "index": []},
+        {"name": "log", "type": "STRING", "index": []}
+    ]
     }, 
 
     {
       "type": "server",
       "path": "/nginx/logs/fallback_access.log",
       "interval": 2000,
-      "expiration_time": "10",
-      "part_unit": "5",
       "columns": [
-        {"name": "log", "type": "STRING"  }
-      ]
+        {"name": "timestamp", "type": "TIMESTAMP", "index": ["tree"]},
+        {"name": "statusCode", "type": "INTEGER", "index": []},
+        {"name": "httpMethod", "type": "STRING", "index": []},
+        {"name": "httpProtocol", "type": "STRING", "index": []},
+        {"name": "hostname", "type": "STRING", "index": []},
+        {"name": "requestedURL", "type": "STRING", "index": []},
+        {"name": "clientIP", "type": "STRING", "index": []},
+        {"name": "contentLength", "type": "INTEGER", "index": []},
+        {"name": "gzip", "type": "STRING", "index": []},
+        {"name": "userAgent", "type": "STRING", "index": []}
+    ]
     }
   ]
 }
