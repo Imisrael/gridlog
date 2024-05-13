@@ -188,7 +188,7 @@ private String generateAggQuery(List<QueryList> queries) {
 
     @PostMapping("/createConfig")
     public ResponseEntity<?> createConfig (@RequestBody ConfigBody data) {
-        System.out.println(data.schemaArr);
+        System.out.println(data.schemaArr.toString());
         System.out.println(data.regex_format);
 
         return ResponseEntity.ok(200);

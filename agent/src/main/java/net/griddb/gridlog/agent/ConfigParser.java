@@ -13,6 +13,8 @@ class ConfigParser {
         String type;
         String path;
         long interval;
+        String expiration_time;
+        String part_unit;
         ArrayList<HashMap <String, String>> columns;
     };
 
@@ -36,6 +38,8 @@ class ConfigParser {
            rule.type = (String)jsonRule.get("type");
            rule.path = (String)jsonRule.get("path");
            rule.interval = (long)jsonRule.get("interval");
+           rule.expiration_time = (String)jsonRule.get("expiration_time");
+           rule.part_unit = (String)jsonRule.get("part_unit");
             rule.columns = new ArrayList<>();
             for (Object jsonColumn_ : (JSONArray)jsonRule.get("columns")) {
                 JSONObject jsonColumn = (JSONObject)jsonColumn_;
