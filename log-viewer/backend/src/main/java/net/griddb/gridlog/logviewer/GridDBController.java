@@ -38,12 +38,21 @@ public class GridDBController {
 
     static public class AggQueryResult {
         //timestamp,count(statusCode), avg(contentLength), min(contentLength), max(contentLength)
-              public Date timestamp;
-              public Integer count;
-              public Double avg;
-              public Double min;
-              public Double max;
-          }
+        public Date timestamp;
+        public Integer count;
+        public Double avg;
+        public Double min;
+        public Double max;
+    }
+
+    static public class ConfigBody {
+        public String logtype;
+        public String regex_format;
+        public int timestamp_position;
+        public String entry_sample;
+        public String timestamp_format;
+        public String[] schemaArr;
+    }
       
 
     private String generateQuery(List<QueryList> queries) {
@@ -116,7 +125,12 @@ private String generateAggQuery(List<QueryList> queries) {
         }
         str.append(" AND ");
     }
-    //SELECT timestamp,count(httpMethod), avg(contentLength), min(contentLength), max(contentLength) FROM LOG_agent_server WHERE timestamp > TO_TIMESTAMP_MS(1709884800000) AND timestamp < TO_TIMESTAMP_MS(1709971199000) AND httpMethod LIKE '%POST%' GROUP BY RANGE (timestamp) EVERY (1, hour) FILL (linear);
+    // SELECT timestamp,count(httpMethod), avg(contentLength), min(contentLength), max(contentLength) 
+    // FROM LOG_agent_server 
+    // WHERE timestamp > TO_TIMESTAMP_MS(1709884800000) 
+    // AND timestamp < TO_TIMESTAMP_MS(1709971199000) 
+    // AND httpMethod LIKE '%POST%' 
+    // GROUP BY RANGE (timestamp) EVERY (1, hour) FILL (linear);
 
     str.append(" GROUP BY RANGE (timestamp) EVERY (1, " + first.interval + ")" );
     str.append(" FILL (" + first.interpolation + ")");
@@ -155,21 +169,29 @@ private String generateAggQuery(List<QueryList> queries) {
     }
 
 
-@PostMapping("/advancedQuery")
-public ResponseEntity<?> advancedQuery(@RequestParam boolean aggregation , @RequestBody List<QueryList> data) {
-    String queryStr = "";
-    HashMap<String, List<?>> result = new HashMap<>();
-    if (aggregation) {
-        queryStr = generateAggQuery(data);
-        result = gridDB.queryFromAggBuilder(queryStr);
-    } else {
-        queryStr = generateQuery(data);
-        result = gridDB.queryFromBuilder(queryStr);
-    }
-    
-    System.out.println(queryStr);
+    @PostMapping("/advancedQuery")
+    public ResponseEntity<?> advancedQuery(@RequestParam boolean aggregation , @RequestBody List<QueryList> data) {
+        String queryStr = "";
+        HashMap<String, List<?>> result = new HashMap<>();
+        if (aggregation) {
+            queryStr = generateAggQuery(data);
+            result = gridDB.queryFromAggBuilder(queryStr);
+        } else {
+            queryStr = generateQuery(data);
+            result = gridDB.queryFromBuilder(queryStr);
+        }
+        
+        System.out.println(queryStr);
 
-    return ResponseEntity.ok(result);
-}
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/createConfig")
+    public ResponseEntity<?> createConfig (@RequestBody ConfigBody data) {
+        System.out.println(data.schemaArr);
+        System.out.println(data.regex_format);
+
+        return ResponseEntity.ok(200);
+    }
 
 }

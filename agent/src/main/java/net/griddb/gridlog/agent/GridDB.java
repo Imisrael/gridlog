@@ -60,5 +60,51 @@ public class GridDB {
         }
     }
 
+    public void createLOGContainer(String containerName, String expirationTime, String timeUnit, String logType) {
+        ConfigParser configParser = new ConfigParser();
+        configParser.parseConfig("./conf/logs.json");
+        ArrayList<HashMap<String, String>> containerSchema = configParser.rules.get(logType).columns;
+        String contLogName = containerName.replaceAll("RAWLOG", "LOG");
+        try {
+            Statement stmt = con.createStatement(); 
+            StringBuilder queryString = new StringBuilder();
+            queryString.append("CREATE TABLE IF NOT EXISTS ");
+            queryString.append(contLogName);
+            queryString.append("( ");
+            int i = 0;
+            for (HashMap<String, String> col : containerSchema) {
+                
+                queryString.append(col.get("name"));
+                queryString.append(" ");
+                queryString.append(col.get("type"));
+                if (i == 0 ) { queryString.append(" NOT NULL");} // first timestamp NEEDs to be not null
+                queryString.append(", ");
+                i++;
+            }
+            queryString.setLength(queryString.length() - 2); //remove last comma and space for last column
+            queryString.append(") WITH ");
+            queryString.append("(expiration_type='PARTITION',expiration_time=30,expiration_time_unit='DAY')");
+            queryString.append("PARTITION BY RANGE (timestamp) EVERY (30, DAY);");
+            System.out.println("LOG CONTAINER: " + queryString.toString());
+            stmt.executeUpdate(queryString.toString());
+
+        } catch (Exception e) {
+            
+        }
+
+
+    }
+
+    public void writeLog (String value, String container_name) {
+        try {
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(container_name);
+
+        } catch (Exception e) {
+            System.out.println("Error writing log with JDBC");
+            e.printStackTrace();
+        }
+    }
 
 }
+

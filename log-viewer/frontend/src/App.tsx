@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { Link } from "react-router-dom";
+
 import { RadioButtonContext } from './components/RadioButtonContext.tsx'
 import { DateRangeContext } from './components/DateRangeContext.tsx';
 import useDidMountEffect from './hooks/useDidMountEffect.tsx';
@@ -179,11 +181,11 @@ const App = () => {
     }
   }, [schema])
 
-  const handleContainerSelection = (event: React.SyntheticEvent<HTMLElement> , { value }) => {
+  const handleContainerSelection = (event: React.SyntheticEvent<HTMLElement>, { value }) => {
 
     const cols = schema[value];
     setUserSelectedContainer(value);
-    const opts = cols.map((val: { name: any; type: any; }) => {
+    const opts = cols.map((val: { name: String; type: String; }) => {
       return { "key": val.name, "text": val.name, "value": val.name, "type": val.type }
     })
 
@@ -191,13 +193,12 @@ const App = () => {
     setColumnOptions(opts)
   }
 
-  const handleLimitOption = (event: React.SyntheticEvent<HTMLElement> ,{value}) => {
+  const handleLimitOption = (event: React.SyntheticEvent<HTMLElement>, { value }) => {
     console.log("limit option: ", value);
     setUserLimit(value);
   }
 
   useDidMountEffect(() => {
-    console.log("yes siir use did mount effect")
     //  console.log("range, selecthostname, range: ", selectHostname, selectLogType, range)
     queryGridDB(selectHostname, selectLogType, range);
   }, [range, selectHostname, selectLogType])
@@ -335,10 +336,11 @@ const App = () => {
             <Sidebar logTypes={LogTypes} hostnames={Hostnames} />
           </div>
 
+        {/* Home View */}
           <div className='flex'>
             <Tabs style="fullWidth">
               <Tabs.Item active title="Home">
-                <div className=''>
+                <div>
                   <DateRangeContext.Provider value={{ start, end, range, setRange }}>
                     < TimePicker />
                   </DateRangeContext.Provider>
@@ -346,8 +348,11 @@ const App = () => {
                     {tables}
                   </div>
                 </div>
-
+              <h1><Link to="config" > Config Page</Link></h1>
               </Tabs.Item>
+
+
+              {/* Advanced View */}
               <Tabs.Item title="Advanced View">
                 <div className='grid grid-cols-5 gap-4'>
                   <Dropdown
@@ -449,8 +454,8 @@ const App = () => {
                   < DataTableNonAgg
                     columns={headerNames[userSelectedContainer]}
                     data={advancedQueryResults["results"]}
-                    title={userSelectedContainer} 
-                    progressPending={undefined}                  
+                    title={userSelectedContainer}
+                    progressPending={undefined}
                   />
                   :
                   <></>
@@ -463,7 +468,7 @@ const App = () => {
                       data={advancedQueryResults["results"]}
                       title={userSelectedContainer}
                       aggColumn={aggColumn}
-                      progressPending={undefined} 
+                      progressPending={undefined}
                     />
 
                     < Chart data={advancedQueryResults} />
