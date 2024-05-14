@@ -9,15 +9,6 @@ import java.io.FileReader;
 
 class ConfigParser {
 
-    class LogsConfig {
-        String type;
-        String path;
-        long interval;
-        String expiration_time;
-        String part_unit;
-        ArrayList<HashMap<String, String>> columns;
-    };
-
     HashMap<String, LogsConfig> rules;
 
     public HashMap<String, LogsConfig> parseConfig(String filename) {
@@ -35,20 +26,20 @@ class ConfigParser {
         for (Object jsonRule_ : jsonRules) {
             JSONObject jsonRule = (JSONObject) jsonRule_;
             LogsConfig rule = new LogsConfig();
-            rule.type = (String) jsonRule.get("type");
-            rule.path = (String) jsonRule.get("path");
-            rule.interval = (long) jsonRule.get("interval");
-            rule.expiration_time = (String) jsonRule.get("expiration_time");
-            rule.part_unit = (String) jsonRule.get("part_unit");
-            rule.columns = new ArrayList<>();
+            rule.logtype = (String) jsonRule.get("type");
+            rule.file_path = (String) jsonRule.get("path");
+            rule.interval = (Integer) jsonRule.get("interval");
+            rule.expiration_time = (Integer) jsonRule.get("expiration_time");
+            rule.partition_unit = (Integer) jsonRule.get("partition_unit");
+            rule.schemaArr = new ArrayList<>();
             for (Object jsonColumn_ : (JSONArray) jsonRule.get("columns")) {
                 JSONObject jsonColumn = (JSONObject) jsonColumn_;
                 HashMap<String, String> column = new HashMap<>();
                 column.put("name", (String) jsonColumn.get("name"));
                 column.put("type", (String) jsonColumn.get("type"));
-                rule.columns.add(column);
+                rule.schemaArr.add(column);
             }
-            rules.put(rule.type, rule);
+            rules.put(rule.logtype, rule);
         }
 
         System.out.println(rules);
