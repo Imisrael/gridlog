@@ -1,7 +1,11 @@
 package net.griddb.gridlog.logviewer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import com.toshiba.mwcloud.gs.*;
+
+import net.griddb.gridlog.logviewer.GridDBController.ConfigBody;
 
 class GridDBNoSQL {
 
@@ -21,5 +25,71 @@ class GridDBNoSQL {
         }   
     }
 
+
+    // type
+    // path
+    // interval
+    // expiration_time
+    // partition_unit
+    // regex_format
+    // timestamp_position
+    // timestamp_format
+    // schema string[]
+
+    public void createConfigContainer(ConfigBody data) {
+
+        System.out.println(data);
+        String cn = "configs";
+
+        try {
+            
+            ContainerInfo containerInfo = new ContainerInfo();
+            List<ColumnInfo> columnList = new ArrayList<ColumnInfo>();
+            columnList.add(new ColumnInfo("logtype", GSType.STRING));
+            columnList.add(new ColumnInfo("file_path", GSType.STRING));
+            columnList.add(new ColumnInfo("interval", GSType.INTEGER));
+            columnList.add(new ColumnInfo("expiration_time", GSType.INTEGER));
+            columnList.add(new ColumnInfo("partition_unit", GSType.INTEGER));
+            columnList.add(new ColumnInfo("timestamp_position", GSType.INTEGER));
+            columnList.add(new ColumnInfo("regex_format", GSType.STRING));
+            columnList.add(new ColumnInfo("timestamp_format", GSType.STRING));
+            columnList.add(new ColumnInfo("schema", GSType.STRING_ARRAY));
+            containerInfo.setColumnInfoList(columnList);
+            containerInfo.setRowKeyAssigned(true);
+    
+            store.putCollection(cn, containerInfo, false);
+            System.out.println("Create Collection name="+cn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+ 
+    try {
+        Collection<String, Row> container = store.getCollection(cn);
+        Row row = container.createRow();
+        row.setString(0, data.logtype);
+        row.setString(1, data.file_path);
+        row.setInteger(2, data.interval);
+        row.setInteger(3, data.expiration_time);
+        row.setInteger(4, data.partition_unit);
+        row.setInteger(5, data.timestamp_position);
+        row.setString(6, data.regex_format);
+        row.setString(7, data.timestamp_format);
+        row.setStringArray(8, data.schemaArr);
+        container.put(row);
+
+        Row zow = container.get("zzervers");
+        String[] stringArray = zow.getStringArray(8);
+        System.out.print("Get Row (Array) stringArray=");
+        for ( String str : stringArray ){
+            System.out.print(str + ", ");
+        }
+
+        container.close();
+    } catch (Exception e) {
+        System.out.println("Exception for getting collection container");
+        e.printStackTrace();
+    }
+
+    }
 
 }

@@ -1,6 +1,7 @@
 package net.griddb.gridlog.logviewer;
 
 import org.springframework.web.bind.annotation.*;
+import org.ietf.jgss.GSSException;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
@@ -13,10 +14,17 @@ import java.util.HashMap;
 public class GridDBController {
 
     GridDB gridDB;
+    GridDBNoSQL GridDBNoSQL;
 
-    public GridDBController() {
+    public GridDBController() throws GSSException{
         super();
         gridDB = new GridDB();
+        try {
+            GridDBNoSQL = new GridDBNoSQL();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 
     static public class QueryList {
@@ -43,7 +51,7 @@ public class GridDBController {
         public Double avg;
         public Double min;
         public Double max;
-    }
+    }     
 
     static public class ConfigBody {
         public String logtype;
@@ -51,6 +59,10 @@ public class GridDBController {
         public int timestamp_position;
         public String entry_sample;
         public String timestamp_format;
+        public String file_path;
+        public int interval;
+        public int expiration_time;
+        public int partition_unit;
         public String[] schemaArr;
     }
       
@@ -188,9 +200,8 @@ private String generateAggQuery(List<QueryList> queries) {
 
     @PostMapping("/createConfig")
     public ResponseEntity<?> createConfig (@RequestBody ConfigBody data) {
-        System.out.println(data.schemaArr.toString());
-        System.out.println(data.regex_format);
 
+        GridDBNoSQL.createConfigContainer(data);
         return ResponseEntity.ok(200);
     }
 

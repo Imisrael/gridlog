@@ -13,6 +13,10 @@ import { HOST } from "../utils/constants";
 //     {"name": "hostname", "type": "STRING", "index": []},
 //     {"name": "log", "type": "STRING", "index": []}
 // ]
+    // path
+    // interval
+    // expiration_time
+    // partition_unit
 
 type Inputs = {
   logtype: string
@@ -21,6 +25,10 @@ type Inputs = {
   entry_sample: string
   timestamp_format: string
   schema: string
+  file_path: string
+  interval: number
+  expiration_time: number
+  partition_unit: number
 }
 
 
@@ -37,7 +45,7 @@ export default function App() {
     console.log(data)
     const schemaArr = data.schema.split(",");
     data["schemaArr"] = schemaArr;
-
+    console.log("pushing data: ", data)
     let url = `${HOST}createConfig`
     fetch(url, {
       method: "POST",
@@ -63,6 +71,10 @@ export default function App() {
       <input type="number" placeholder="timestamp position" {...register("timestamp_position", {required: true})} />
       <input type="text" placeholder="entry sample" {...register("entry_sample", {required: true})} />
       <input type="text" placeholder="timestamp format" {...register("timestamp_format", {required: true})} />
+      <input type="text" placeholder="file path" {...register("file_path", {required: true})} />
+      <input type="number" placeholder="interval" {...register("interval", {required: true})} />
+      <input type="number" placeholder="expiration time" {...register("expiration_time", {required: true})} />
+      <input type="number" placeholder="partition unit" {...register("partition_unit", {required: true})} />
       <textarea defaultValue="FORMAT: columnName,columnType" {...register("schema", {required: true, pattern: regex})} />
       {errors.schema && <p> The schema field requires a format of `name,type` with no spaces (for example: hostname,string,logtype,string,timestamp,timestamp)</p>}
       <input type="submit" />
