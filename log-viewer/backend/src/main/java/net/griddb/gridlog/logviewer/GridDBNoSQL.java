@@ -24,8 +24,6 @@ class GridDBNoSQL {
             e.printStackTrace();
         }   
     }
-
-
     // type
     // path
     // interval
@@ -38,7 +36,6 @@ class GridDBNoSQL {
 
     public void createConfigContainer(ConfigBody data) {
 
-        System.out.println(data);
         String cn = "configs";
 
         try {
@@ -77,12 +74,12 @@ class GridDBNoSQL {
         row.setStringArray(8, data.schemaArr);
         container.put(row);
 
-        Row zow = container.get("zzervers");
-        String[] stringArray = zow.getStringArray(8);
-        System.out.print("Get Row (Array) stringArray=");
-        for ( String str : stringArray ){
-            System.out.print(str + ", ");
-        }
+        // Row row2 = container.get("zzervers");
+        // String[] stringArray = row2.getStringArray(8);
+        // System.out.print("Get Row (Array) stringArray=");
+        // for ( String str : stringArray ){
+        //     System.out.print(str + ", ");
+        // }
 
         container.close();
     } catch (Exception e) {

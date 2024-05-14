@@ -42,7 +42,7 @@ public class GridDB {
             prop.setProperty("user", username);
             prop.setProperty("password", password);
 
-            System.out.println(jdbcUrl);
+            //System.out.println(jdbcUrl);
 
             con = DriverManager.getConnection(jdbcUrl, prop);
 

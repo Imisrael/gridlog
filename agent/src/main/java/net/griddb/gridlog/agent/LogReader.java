@@ -5,18 +5,19 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.time.*;
 
-import net.griddb.gridlog.agent.ConfigParser.LogsConfig; 
+import net.griddb.gridlog.agent.LogsConfig; 
 
 
-// Date ts, 
-// String hostname, 
-// String logtype, 
-// String value, 
-// String (file)path
+// String type;
+// String path;
+// long interval;
+// String expiration_time;
+// String part_unit;
+// ArrayList<HashMap<String, String>> ;
 
 class LogReader extends Thread {
 
-    LogsConfig logConf;
+    static LogsConfig logConf;
     String hostname;
     String griddbURL;
     static GridDB gridDB;
@@ -28,6 +29,13 @@ class LogReader extends Thread {
         gridDB = new GridDB();
     }
 
+    public LogReader() {
+        this.logConf = null;
+        this.hostname = null;
+        this.griddbURL = null;
+        gridDB = new GridDB();
+    }
+
     public static String getContainerName (String hostname, String logtype) {
         return "RAWLOG_" + hostname + "_" +logtype;
     }
@@ -35,18 +43,18 @@ class LogReader extends Thread {
     private static void monitorFile(
         File file, String hostname, 
         String logtype, 
-        long interval, 
+        Integer interval, 
         String path, 
         String griddbURL,
-        String expiration_time,
-        String part_unit
+        Integer expiration_time,
+        Integer part_unit
         ) throws IOException {
         FileReader reader = new FileReader(file);
         BufferedReader buffered = new BufferedReader(reader);
         GridDBWriter gWriter = new GridDBWriter(hostname, logtype, path, griddbURL);
         String cn = getContainerName(hostname, logtype);
-        gridDB.createRAWLOGContainer(cn, expiration_time, part_unit); // creates container for specific logs
-        gridDB.createLOGContainer(cn, "30", "DAY", logtype);
+        gridDB.createRAWLOGContainer(cn, expiration_time.toString(), part_unit.toString()); // creates container for specific logs
+        gridDB.createLOGContainer(cn, "30", "DAY", logConf);
         gWriter.createRAWLOGWrites();
 
         // string for raw log container
@@ -104,14 +112,14 @@ class LogReader extends Thread {
     }
 
     public void run() {
-        String filePath = logConf.path.toString();
-        String logtype = logConf.type.toString();
-        long interval = logConf.interval;
-        String expiration_time = logConf.expiration_time;
-        String part_unit = logConf.part_unit;
+        String filePath = logConf.file_path;
+        String logtype = logConf.logtype;
+        Integer interval = logConf.interval;
+        Integer expiration_time = logConf.expiration_time;
+        Integer partition_unit = logConf.partition_unit;
         File f = new File(filePath);
         try {
-            monitorFile(f, hostname, logtype, interval, filePath, griddbURL, expiration_time, part_unit);
+            monitorFile(f, hostname, logtype, interval, filePath, griddbURL, expiration_time, partition_unit);
         } catch(IOException e) {
             e.printStackTrace();
         }

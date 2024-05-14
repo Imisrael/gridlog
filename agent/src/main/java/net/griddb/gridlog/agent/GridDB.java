@@ -29,7 +29,7 @@ public class GridDB {
             prop.setProperty("user", username);
             prop.setProperty("password", password);
 
-            System.out.println(jdbcUrl);
+         //   System.out.println(jdbcUrl);
 
             con = DriverManager.getConnection(jdbcUrl, prop);
 
@@ -60,10 +60,12 @@ public class GridDB {
         }
     }
 
-    public void createLOGContainer(String containerName, String expirationTime, String timeUnit, String logType) {
-        ConfigParser configParser = new ConfigParser();
-        configParser.parseConfig("./conf/logs.json");
-        ArrayList<HashMap<String, String>> containerSchema = configParser.rules.get(logType).columns;
+    public void createLOGContainer(String containerName, String expirationTime, String timeUnit, LogsConfig logConf) {
+        // ConfigParser configParser = new ConfigParser();
+        // configParser.parseConfig("./conf/logs.json");
+        ArrayList<HashMap<String, String>> containerSchema = logConf.schemaArr;
+
+
         String contLogName = containerName.replaceAll("RAWLOG", "LOG");
         try {
             Statement stmt = con.createStatement(); 
@@ -73,8 +75,7 @@ public class GridDB {
             queryString.append("( ");
             int i = 0;
             for (HashMap<String, String> col : containerSchema) {
-                
-                queryString.append(col.get("name"));
+                queryString.append(col.get("key"));
                 queryString.append(" ");
                 queryString.append(col.get("type"));
                 if (i == 0 ) { queryString.append(" NOT NULL");} // first timestamp NEEDs to be not null
