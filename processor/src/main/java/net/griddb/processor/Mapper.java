@@ -13,11 +13,11 @@ class Mapper {
     public GSType columnType(String type) {
 
         switch(type) {
-            case "INTEGER":
+            case "integer":
                 return GSType.INTEGER;
-            case "TIMESTAMP":
+            case "timestamp":
                 return GSType.TIMESTAMP;
-            case "STRING":
+            case "string":
                 return GSType.STRING;
         }
         return null;
@@ -27,15 +27,15 @@ class Mapper {
 
         System.out.println("set Column("+index+") :"+type+" "+value);
         switch(type) {
-            case "INTEGER":
+            case "integer":
                 String valString = value.toString();
                 System.out.println(Integer.parseInt(valString));
                 row.setInteger(index, Integer.parseInt(valString));
                 return;
-            case "TIMESTAMP":
+            case "timestamp":
                 row.setTimestamp(index, (Date)value);
                 return;
-            case "STRING":
+            case "string":
                 row.setString(index, (String)value);
                 return;
         }
