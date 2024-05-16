@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { HOST } from "../utils/constants";
+import { NewLogEntryInputs } from "../utils/types";
 
 // "logtype": "tests",
 // "SAMPLE": "Thu 17 Aug 2023 01:41:49 PM PDT hpelnxdev random log entry",
@@ -18,30 +19,35 @@ import { HOST } from "../utils/constants";
     // expiration_time
     // partition_unit
 
-type Inputs = {
-  logtype: string
-  regex_format: string
-  timestamp_position: number
-  entry_sample: string
-  timestamp_format: string
-  schema: string
-  file_path: string
-  interval: number
-  expiration_time: number
-  partition_unit: number
-}
+
+export default function ConfigForm(props: {exampleLogEntry: NewLogEntryInputs}) {
 
 
-
-
-export default function App() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
-  } = useForm<Inputs>()
+  } = useForm<NewLogEntryInputs>()
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  const {exampleLogEntry} = props;
+
+  React.useEffect( () => {
+    if (exampleLogEntry !== null) {
+      setValue("logtype", exampleLogEntry.logtype);
+      setValue("regex_format", exampleLogEntry.regex_format);
+      setValue("timestamp_position", exampleLogEntry.timestamp_position);
+      setValue("entry_sample", exampleLogEntry.entry_sample);
+      setValue("timestamp_format", exampleLogEntry.timestamp_format);
+      setValue("schema", exampleLogEntry.schema);
+      setValue("file_path", exampleLogEntry.file_path);
+      setValue("interval", exampleLogEntry.interval);
+      setValue("expiration_time", exampleLogEntry.expiration_time);
+      setValue("partition_unit", exampleLogEntry.partition_unit);
+    }   
+  }, [exampleLogEntry, setValue]);
+
+  const onSubmit: SubmitHandler<NewLogEntryInputs> = (data) => {
     console.log(data)
     const schemaArr = data.schema.split(",");
     data["schemaArr"] = schemaArr;
@@ -62,6 +68,7 @@ export default function App() {
       )
 
   }
+  // regex ensures `columnName,columnType` pattern
   const regex = /^(\w+(,\s*\w+)*)$/;
 
   return (

@@ -1,11 +1,6 @@
 package net.griddb.gridlog.agent;
 
 import java.util.Properties;
-
-import javax.print.attribute.HashPrintJobAttributeSet;
-
-import org.ietf.jgss.GSSException;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -59,7 +54,7 @@ class GridLogAgent {
     // 7 timestamp_format STRING
     // 8 schema STRING_ARRAY
 
-    public static HashMap<String, Row> parseConfigFromDB() throws GSSException {
+    public static HashMap<String, Row> parseConfigFromDB() throws GSException {
         HashMap<String, Row> retval = new HashMap<String, Row>();
         try {
             GridDBNoSQL GridDBNoSQL = new GridDBNoSQL();
@@ -67,14 +62,7 @@ class GridLogAgent {
             while (rs.hasNext()) {
                 Row row = rs.next();
                 String keyName = row.getString(0);
-                System.out.println("One row of data read from parseConfig keyname: " + keyName);
                 retval.put(keyName, row);
-                // String file_path = row.getString(1);
-                // int interval = row.getInteger(2);
-                // int expiration_time = row.getInteger(3);
-                // int partition_unit = row.getInteger(4);
-                // String[] schemaArr = row.getStringArray(8);
-
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,7 +71,7 @@ class GridLogAgent {
         return retval;
     }
 
-    public static void main(String[] args) throws GSSException {
+    public static void main(String[] args) throws GSException {
 
         // reading GridDB Properties file
         HashMap<String, String> griddbConf = getGridDBConf("./conf/griddb.properties");
@@ -95,7 +83,6 @@ class GridLogAgent {
         int k = 0;
         
         try {
-            
             for (String key : configs.keySet()) {
                 
                 System.out.println("iterating through k for rows in configs table: " + k);
@@ -119,19 +106,8 @@ class GridLogAgent {
                 LogReader logReader = new LogReader(logConf, logAgent.hostname, logAgent.griddbURL);
                 logReader.start();
             }
-            // for (int idx = 0; idx < k; idx++) {
-            //     System.out.println("How many of these log reader joins we got>? " + idx);
-            //     try {
-            //         logReader.join();
-            //     } catch (InterruptedException e) {
-            //         e.printStackTrace();
-            //     }
-            // }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 }
