@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { NewLogEntryInputs } from '../utils/types';
 
-export default function ManagedLogTypes (props: 
+export default function ManagedLogTypes(props:
   {
-    setExampleLogEntry:  React.Dispatch<React.SetStateAction<NewLogEntryInputs>>;
+    setExampleLogEntry: React.Dispatch<React.SetStateAction<NewLogEntryInputs>>;
   }
 ) {
-  const {setExampleLogEntry} = props;
+  const { setExampleLogEntry } = props;
 
   const testsLogType: NewLogEntryInputs = {
     logtype: "tests",
@@ -36,20 +36,29 @@ export default function ManagedLogTypes (props:
     schema: "timestamp,timestamp,hostname,string,log,string"
   }
 
-  const buttonHandler = (event) => {
-    const type = event.target.dataset.logtype
+  const buttonHandler = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const type = event.currentTarget.getAttribute("data-logtype")
     if (type === "tests") {
       setExampleLogEntry(testsLogType);
     } else if (type === "server") {
       setExampleLogEntry(serverLogType);
     }
-    
+
   }
 
-    return (
-        <>
-            <button data-logtype="tests" onClick={buttonHandler}>Tests</button>
-            <button data-logtype="server" onClick={(buttonHandler)}> Server</button>
-        </>
-    )
+  return (
+    <>
+      <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+        data-logtype="tests"
+        onClick={buttonHandler}
+      >
+        Tests
+      </button>
+      <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+        data-logtype="server"
+        onClick={buttonHandler}
+      >
+        Server</button>
+    </>
+  )
 }

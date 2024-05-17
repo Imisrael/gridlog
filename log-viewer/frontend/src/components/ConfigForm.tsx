@@ -2,6 +2,7 @@ import * as React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { HOST } from "../utils/constants";
 import { NewLogEntryInputs } from "../utils/types";
+import SelectForm from "../components/SelectForm.tsx";
 
 // "logtype": "tests",
 // "SAMPLE": "Thu 17 Aug 2023 01:41:49 PM PDT hpelnxdev random log entry",
@@ -14,13 +15,13 @@ import { NewLogEntryInputs } from "../utils/types";
 //     {"name": "hostname", "type": "STRING", "index": []},
 //     {"name": "log", "type": "STRING", "index": []}
 // ]
-    // path
-    // interval
-    // expiration_time
-    // partition_unit
+// path
+// interval
+// expiration_time
+// partition_unit
 
 
-export default function ConfigForm(props: {exampleLogEntry: NewLogEntryInputs}) {
+export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, keyNames: string[] }) {
 
 
   const {
@@ -30,9 +31,21 @@ export default function ConfigForm(props: {exampleLogEntry: NewLogEntryInputs}) 
     formState: { errors },
   } = useForm<NewLogEntryInputs>()
 
-  const {exampleLogEntry} = props;
+  const { exampleLogEntry, keyNames } = props;
 
-  React.useEffect( () => {
+  function validateUniqueKeyName(key: string) {
+    if (keyNames.length > 0 && keyNames !== null) {
+      for (let i = 0; i < keyNames.length; i++) {
+        if (key === keyNames[i]) {
+          return false
+        }
+      }
+    }
+
+    return true
+  }
+
+  React.useEffect(() => {
     if (exampleLogEntry !== null) {
       setValue("logtype", exampleLogEntry.logtype);
       setValue("regex_format", exampleLogEntry.regex_format);
@@ -44,7 +57,7 @@ export default function ConfigForm(props: {exampleLogEntry: NewLogEntryInputs}) 
       setValue("interval", exampleLogEntry.interval);
       setValue("expiration_time", exampleLogEntry.expiration_time);
       setValue("partition_unit", exampleLogEntry.partition_unit);
-    }   
+    }
   }, [exampleLogEntry, setValue]);
 
   const onSubmit: SubmitHandler<NewLogEntryInputs> = (data) => {
@@ -74,16 +87,18 @@ export default function ConfigForm(props: {exampleLogEntry: NewLogEntryInputs}) 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <input type="text" placeholder="logtype" {...register("logtype", {required: true})} />
-      <input type="text" placeholder="regex_format" {...register("regex_format", {required: true})} />
-      <input type="number" placeholder="timestamp position" {...register("timestamp_position", {required: true})} />
-      <input type="text" placeholder="entry sample" {...register("entry_sample", {required: true})} />
-      <input type="text" placeholder="timestamp format" {...register("timestamp_format", {required: true})} />
-      <input type="text" placeholder="file path" {...register("file_path", {required: true})} />
-      <input type="number" placeholder="interval" {...register("interval", {required: true})} />
-      <input type="number" placeholder="expiration time" {...register("expiration_time", {required: true})} />
-      <input type="number" placeholder="partition unit" {...register("partition_unit", {required: true})} />
-      <textarea defaultValue="FORMAT: columnName,columnType" {...register("schema", {required: true, pattern: regex})} />
+      <input type="text" placeholder="logtype" {...register("logtype", { required: true, validate: (value) => validateUniqueKeyName(value) })} />
+      <input type="text" placeholder="regex_format" {...register("regex_format", { required: true })} />
+      <input type="number" placeholder="timestamp position" {...register("timestamp_position", { required: true })} />
+      <input type="text" placeholder="entry sample" {...register("entry_sample", { required: true })} />
+      <input type="text" placeholder="timestamp format" {...register("timestamp_format", { required: true })} />
+      <input type="text" placeholder="file path" {...register("file_path", { required: true })} />
+      <input type="number" placeholder="interval" {...register("interval", { required: true })} />
+      <input type="number" placeholder="expiration time" {...register("expiration_time", { required: true })} />
+      <input type="number" placeholder="partition unit" {...register("partition_unit", { required: true })} />
+      <textarea defaultValue="FORMAT: columnName,columnType" {...register("schema", { required: true, pattern: regex })} />
+      <SelectForm />
+      {errors.logtype && <p> Sorry, it looks like this keyName (logtype) is already being tracked and used!</p>}
       {errors.schema && <p> The schema field requires a format of `name,type` with no spaces (for example: hostname,string,logtype,string,timestamp,timestamp)</p>}
       <input type="submit" />
     </form>

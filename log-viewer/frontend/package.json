@@ -26,6 +26,7 @@
     "react-hook-form": "^7.51.4",
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
+    "react-select": "^5.8.0",
     "react-tailwindcss-datetimepicker": "^3.0.3",
     "recharts": "^2.10.3",
     "semantic-ui-css": "^2.5.0",

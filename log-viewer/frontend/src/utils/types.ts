@@ -1,6 +1,6 @@
 export interface NewLogEntryInputs {
     logtype: string
-    regex_format: RegExp
+    regex_format: string
     timestamp_position: number
     entry_sample: string
     timestamp_format: string
