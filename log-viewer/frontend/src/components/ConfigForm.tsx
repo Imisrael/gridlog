@@ -48,6 +48,7 @@ export default function ConfigForm(props: {exampleLogEntry: NewLogEntryInputs}) 
   }, [exampleLogEntry, setValue]);
 
   const onSubmit: SubmitHandler<NewLogEntryInputs> = (data) => {
+    data.regex_format = String.raw`${data.regex_format}`;
     console.log(data)
     const schemaArr = data.schema.split(",");
     data["schemaArr"] = schemaArr;
