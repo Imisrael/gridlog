@@ -83,7 +83,7 @@ label {
 
 button[type="submit"],
 input[type="submit"] {
-  background: #ec5990;
+  background: #e38811;
   color: white;
   text-transform: uppercase;
   border: none;
@@ -96,7 +96,7 @@ input[type="submit"] {
 
 button[type="submit"]:hover,
 input[type="submit"]:hover {
-  background: #bf1650;
+  background: #9d5100;
 }
 
 button[type="submit"]:active,

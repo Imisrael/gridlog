@@ -4,13 +4,16 @@ import DropdownListItem from './DropdownListItem.tsx';
 import useScript from '../hooks/useScript.tsx';
 import { RadioButtonContext } from "./RadioButtonContext.tsx";
 
+import { Link } from "react-router-dom";
+
 
 export default function Sidebar(props: any) {
   useScript('https://unpkg.com/flowbite@1.5.1/dist/flowbite.js');
 
   const {hostnames, logTypes} = props;
-  
   const { selectHostname, selectLogType } = useContext(RadioButtonContext);
+ // const currentURL = window.location.pathname;
+
   return (
     <>
 
@@ -76,6 +79,7 @@ export default function Sidebar(props: any) {
             </li>
 
           </ul>
+          <p className='red'><Link to="config" className=''> Config Page</Link></p>
         </div>
       </aside>
 
