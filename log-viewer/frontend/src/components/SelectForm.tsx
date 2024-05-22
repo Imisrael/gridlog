@@ -1,13 +1,13 @@
 import * as React from 'react';
 import ReactSelect from 'react-select';
 import { Button } from 'semantic-ui-react';
-import { Controller, Control, FieldValues, UseFormRegister } from "react-hook-form";
+import { Controller, Control, FieldValues } from "react-hook-form";
 
 
 const options = [
-  { value: 'STRING', label: 'String' },
-  { value: 'INTEGER', label: 'Integer' },
-  { value: 'TIMESTAMP', label: 'Timestamp' }
+  { value: 'string', label: 'String' },
+  { value: 'integer', label: 'Integer' },
+  { value: 'timestamp', label: 'Timestamp' }
 ]
 
 export default function SelectForm(props:
@@ -19,7 +19,7 @@ export default function SelectForm(props:
     addNumOfRows: (currNumOfRows: number) => void;
     numOfSchemaRows: number;
     lastRow: number;
-
+    value?: any;
   }
 ) {
   const { 
@@ -70,6 +70,7 @@ export default function SelectForm(props:
             render={({ field }) => (
               <ReactSelect
                 isClearable
+                placeholder="column type"
                 {...field}
                 options={options}
               />
@@ -78,12 +79,14 @@ export default function SelectForm(props:
         </div>
         <div className="w-1/3">
           <Button
+            type="button"
             icon='plus'
             className="addButton"
             style={{ right: "-15px" }}
             onClick={handleAdd}
           />
           <Button
+            type="button"
             icon='minus'
             className="removeButton"
             style={{ right: "-35px" }}

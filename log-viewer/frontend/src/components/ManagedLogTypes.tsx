@@ -19,7 +19,15 @@ export default function ManagedLogTypes(props:
     interval: 1000,
     expiration_time: 5,
     partition_unit: 10,
-   // schema: "timestamp,timestamp,hostname,string,log,string"
+    schemaArr: ["timestamp,timestamp,hostname,string,log,string"],
+    schema: {
+      columnNames: ['timestamp','hostname','log'],
+      columnTypes: [
+        {value: 'timestamp'},
+        {value: 'string'},
+        {value: 'string'}
+      ]
+    }
   }
 
   const serverLogType: NewLogEntryInputs = {
@@ -33,7 +41,7 @@ export default function ManagedLogTypes(props:
     interval: 2000,
     expiration_time: 10,
     partition_unit: 5,
-   // schema: "timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"
+    schemaArr: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"]
   }
 
   const buttonHandler = (event: React.MouseEvent<HTMLButtonElement>) => {

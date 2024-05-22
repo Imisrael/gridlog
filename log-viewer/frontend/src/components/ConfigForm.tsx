@@ -2,7 +2,6 @@ import * as React from "react";
 import { useForm, SubmitHandler, FieldValues, FormProvider } from "react-hook-form";
 import { HOST } from "../utils/constants";
 import { NewLogEntryInputs } from "../utils/types";
-import { Button } from 'semantic-ui-react';
 import SelectForm from "../components/SelectForm.tsx";
 
 // "logtype": "tests",
@@ -48,8 +47,35 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       }
       return true
     }
-    return false;
+    return true;
   }
+
+  function genSchemaFromObj(
+    colNames: string[],
+    colTypes: { value: string, label?: string }[]
+  ): string[] {
+    if (colNames.length !== colTypes.length) {
+      return []
+    }
+
+    const types = [];
+    colTypes.forEach(t => types.push(t.value))
+
+    const schemaArr = []
+    for (let i = 0; i < colNames.length; i++) {
+      schemaArr.push(colNames[i])
+      schemaArr.push(types[i])
+    }
+    return schemaArr;
+  }
+
+  const initialRows = [
+    { idx: 1, numOfRows: 1, high: 1, value: [] },
+  ]
+
+  const [schemaRows, setSchemaRows] = React.useState(initialRows);
+  const [numOfSchemaRows, setNumOfSchemaRows] = React.useState(1);
+  const [lastRow, setLastRow] = React.useState(1);
 
   // populates form with example data based on user input
   React.useEffect(() => {
@@ -59,13 +85,40 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       setValue("timestamp_position", exampleLogEntry.timestamp_position);
       setValue("entry_sample", exampleLogEntry.entry_sample);
       setValue("timestamp_format", exampleLogEntry.timestamp_format);
-      // setValue("schema", exampleLogEntry.schema);
       setValue("file_path", exampleLogEntry.file_path);
       setValue("interval", exampleLogEntry.interval);
       setValue("expiration_time", exampleLogEntry.expiration_time);
       setValue("partition_unit", exampleLogEntry.partition_unit);
+
+      const schemaArr: string[] = genSchemaFromObj(exampleLogEntry.schema.columnNames, exampleLogEntry.schema.columnTypes);
+      console.log("Schema arr in gen function", schemaArr);
+      // we take the length divded by two the array is in colname,coltype pairs
+      const n = schemaArr.length / 2
+      addNumOfRows(n);
+
+      if (schemaRows.length === n) {
+        const copy = schemaRows;
+        for (let i = 0; i < copy.length; i += 2) {
+          copy[i].value[i] = schemaArr[i];
+          copy[i].value[i + 1] = schemaArr[i + 1];
+        }
+        setSchemaRows(copy);
+        setTimeout(() => { }, 500);
+        return;
+      } else {
+        console.log("schemaRows length", schemaRows.length)
+      }
+      
+
+
+
+
     }
-  }, [exampleLogEntry, setValue]);
+  }, [exampleLogEntry, schemaRows, setValue]);
+
+  React.useEffect(() => {
+    console.log("usee effect schema rows: ", schemaRows);
+  }, [schemaRows])
 
   React.useEffect(() => {
     if (formState.isSubmitSuccessful) {
@@ -90,11 +143,15 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
   const onSubmit: SubmitHandler<NewLogEntryInputs> = (data) => {
     if (data !== null) {
       data.regex_format = String.raw`${data.regex_format}`;
+
+      // undefined array values come into play if a user makes a column row but doesn't use it
+      // or if they make it and delete it... the undefined stays on the obj
       const colNames = data.schema.columnNames.filter(name => name !== undefined)
-      const colTypes = data.schema.columnTypes.filter(type => type !== undefined)
-      data.schema.columnNames = colNames;
-      data.schema.columnTypes = colTypes;
-      console.log("pushing data: ", data)
+      const colTypes: { value: string, label?: string }[] = data.schema.columnTypes.filter(type => type !== undefined)
+
+      const schemaArr: string[] = genSchemaFromObj(colNames, colTypes);
+      data.schemaArr = schemaArr;
+      console.log("pushing data: ", data, schemaArr)
       let url = `${HOST}createConfig`
       fetch(url, {
         method: "POST",
@@ -117,16 +174,8 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
 
 
   }
-  // regex ensures `columnName,columnType` pattern
-  // const regex = /^(\w+(,\s*\w+)*)$/;
 
-  const initialRows = [
-    { idx: 1, numOfRows: 1, high: 1 },
-  ]
 
-  const [schemaRows, setSchemaRows] = React.useState(initialRows);
-  const [numOfSchemaRows, setNumOfSchemaRows] = React.useState(1);
-  const [lastRow, setLastRow] = React.useState(1);
 
   const removeRow = (idx: number) => {
     const newRows = schemaRows.filter((row) => row.idx !== idx)
@@ -143,13 +192,13 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
 
   const addNumOfRows = (newNum: number) => {
     newNum++
-    console.log("adding new row from addNumofRows: ", newNum);
     let rows = []
     let max = 1;
     for (let i = 1; i < newNum; i++) {
-      rows.push({ idx: i, schemaRows: newNum })
+      rows.push({ idx: i, numOfRows: newNum, value: new Array(2) })
       max = i
     }
+    console.log("Setting schema rows", rows);
     setLastRow(max);
     setSchemaRows(rows);
     setNumOfSchemaRows(rows.length)
@@ -177,6 +226,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
               key={row.idx}
               control={control}
               idx={row.idx}
+              //value={row.value}
               removeRow={removeRow}
               addNumOfRows={addNumOfRows}
               numOfSchemaRows={numOfSchemaRows}
