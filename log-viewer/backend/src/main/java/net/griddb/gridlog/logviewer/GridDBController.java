@@ -1,8 +1,8 @@
 package net.griddb.gridlog.logviewer;
 
 import org.springframework.web.bind.annotation.*;
-import org.ietf.jgss.GSSException;
 import org.springframework.http.ResponseEntity;
+import com.toshiba.mwcloud.gs.GSException;
 
 import java.util.Date;
 import java.util.List;
@@ -16,7 +16,7 @@ public class GridDBController {
     GridDB gridDB;
     GridDBNoSQL GridDBNoSQL;
 
-    public GridDBController() throws GSSException{
+    public GridDBController() throws GSException{
         super();
         gridDB = new GridDB();
         try {
@@ -203,6 +203,15 @@ private String generateAggQuery(List<QueryList> queries) {
 
         GridDBNoSQL.createConfigContainer(data);
         return ResponseEntity.ok(200);
+    }
+
+    @RequestMapping(value = "/getConfigKeyNames", method = RequestMethod.GET)
+    public ResponseEntity<List<String>> getConfigKeyNames () {
+        List<String> keyNames = GridDBNoSQL.getConfigKeyNames();
+        for (String s : keyNames) {
+            System.out.println(s);
+        }
+        return ResponseEntity.ok(keyNames);
     }
 
 }

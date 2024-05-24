@@ -11,6 +11,6 @@ class ConfigInfo {
     Integer timestamp_position;
     String regex_format;
     String timestamp_format;
-    String[] schemaArr;
+    String[] schema;
    // HashMap<String,String> schema;
 }

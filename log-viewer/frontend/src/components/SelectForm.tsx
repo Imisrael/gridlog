@@ -19,7 +19,9 @@ export default function SelectForm(props:
     addNumOfRows: (currNumOfRows: number) => void;
     numOfSchemaRows: number;
     lastRow: number;
-    value?: any;
+    value?: string[];
+    rowsUpdated: boolean
+ //   setValue;
   }
 ) {
   const { 
@@ -28,8 +30,31 @@ export default function SelectForm(props:
     removeRow,
     addNumOfRows,
     numOfSchemaRows,
+    value,
+    rowsUpdated,
+//    setValue,
   } = props;
+
+  const [inputColName, setInputColName] = React.useState("column name");
+  const [inputColType, setInputColType] = React.useState({ value: 'type', label: 'Column Type' });
+
+  const inputName = `schema.columnNames.${idx-1}`
+  const dropdownName = `schema.columnTypes.${idx-1}`
  
+  React.useEffect( () => {
+    if (value.length > 0 ) {
+ //     console.log("values per indeX: ", idx, value);
+      setInputColName(value[0])
+      const coltype = {value: value[1], label: value[1]}
+      setInputColType(coltype)
+  //    setValue(dropdownName, inputColType)
+    } else {
+      console.log("value is undefined")
+    }
+
+  }, [value, rowsUpdated, idx])
+
+
 
   const handleAdd = () => {
     console.log("Adding item: ", numOfSchemaRows)
@@ -42,8 +67,16 @@ export default function SelectForm(props:
     removeRow(idx)
   }
 
-  const inputName = `schema.columnNames.${idx-1}`
-  const dropdownName = `schema.columnTypes.${idx-1}`
+  const handleInputChange = ( value) => {
+    console.log("input changed: ", value)
+ //   setInputColType(value.value)
+  }
+
+  const handleInputNameChange = (event) => {
+    console.log("input changed: ",  event.target)
+    //setInputColName(value)
+  }
+
 
   return (
 
@@ -58,6 +91,9 @@ export default function SelectForm(props:
                 type="text"
                 {...field}
                 placeholder="column name"
+                value={inputColName}
+                onChange={handleInputNameChange}
+                
               />
             )}
           />
@@ -73,6 +109,8 @@ export default function SelectForm(props:
                 placeholder="column type"
                 {...field}
                 options={options}
+                value={inputColType}
+                onChange={handleInputChange}
               />
             )}
           />

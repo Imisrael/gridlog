@@ -41,7 +41,22 @@ export default function ManagedLogTypes(props:
     interval: 2000,
     expiration_time: 10,
     partition_unit: 5,
-    schemaArr: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"]
+    schemaArr: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"],
+    schema: {
+      columnNames: ['timestamp','statusCode','httpMethod', 'httpProtocol', 'hostname', 'requestedURL', 'clientIP', 'contentLength', 'gzip', 'userAgent'],
+      columnTypes: [
+        {value: 'timestamp'},
+        {value: 'integer'},
+        {value: 'string'},
+        {value: 'string'},
+        {value: 'string'},
+        {value: 'string'},
+        {value: 'string'},
+        {value: 'integer'},
+        {value: 'string'},
+        {value: 'string'}
+      ]
+    }
   }
 
   const buttonHandler = (event: React.MouseEvent<HTMLButtonElement>) => {

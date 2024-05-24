@@ -54,12 +54,17 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
     colNames: string[],
     colTypes: { value: string, label?: string }[]
   ): string[] {
+    console.log("gen schema from obj: ", colNames, colTypes)
     if (colNames.length !== colTypes.length) {
       return []
     }
+    let types = [];
 
-    const types = [];
-    colTypes.forEach(t => types.push(t.value))
+    if (colTypes[0].value !== undefined) {
+      colTypes.forEach(t => types.push(t.value))
+    } else { 
+      types = colTypes
+    }
 
     const schemaArr = []
     for (let i = 0; i < colNames.length; i++) {
@@ -76,6 +81,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
   const [schemaRows, setSchemaRows] = React.useState(initialRows);
   const [numOfSchemaRows, setNumOfSchemaRows] = React.useState(1);
   const [lastRow, setLastRow] = React.useState(1);
+  const [rowsUpdated, setRowsUpdated] = React.useState(false);
 
   // populates form with example data based on user input
   React.useEffect(() => {
@@ -96,28 +102,33 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       const n = schemaArr.length / 2
       addNumOfRows(n);
 
+      
       if (schemaRows.length === n) {
         const copy = schemaRows;
-        for (let i = 0; i < copy.length; i += 2) {
-          copy[i].value[i] = schemaArr[i];
-          copy[i].value[i + 1] = schemaArr[i + 1];
+        let k = 0;
+        for (let i = 0; i < schemaArr.length; i += 2) {
+          copy[k].value[0] = schemaArr[i];
+          copy[k].value[1] = schemaArr[i+1];
+          setValue("schema.columnNames."+k, schemaArr[i]);
+          setValue("schema.columnTypes."+k, schemaArr[i+1]);
+          k++;
         }
+    //    console.log("Schema rows to be pushed: ", copy)
         setSchemaRows(copy);
-        setTimeout(() => { }, 500);
+        
+        
         return;
-      } else {
-        console.log("schemaRows length", schemaRows.length)
-      }
-      
-
-
-
-
+      } 
     }
   }, [exampleLogEntry, schemaRows, setValue]);
 
   React.useEffect(() => {
-    console.log("usee effect schema rows: ", schemaRows);
+    // only set rows updated to true once schemarows is updated
+    // this prevents schema rows not updating with values properly
+    if (schemaRows.length > 1) {
+      setRowsUpdated(true);
+    }
+
   }, [schemaRows])
 
   React.useEffect(() => {
@@ -144,10 +155,13 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
     if (data !== null) {
       data.regex_format = String.raw`${data.regex_format}`;
 
+      console.log("Submitted data: ", data);
       // undefined array values come into play if a user makes a column row but doesn't use it
       // or if they make it and delete it... the undefined stays on the obj
       const colNames = data.schema.columnNames.filter(name => name !== undefined)
       const colTypes: { value: string, label?: string }[] = data.schema.columnTypes.filter(type => type !== undefined)
+
+      
 
       const schemaArr: string[] = genSchemaFromObj(colNames, colTypes);
       data.schemaArr = schemaArr;
@@ -172,10 +186,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
         )
     }
 
-
   }
-
-
 
   const removeRow = (idx: number) => {
     const newRows = schemaRows.filter((row) => row.idx !== idx)
@@ -195,15 +206,14 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
     let rows = []
     let max = 1;
     for (let i = 1; i < newNum; i++) {
-      rows.push({ idx: i, numOfRows: newNum, value: new Array(2) })
+      rows.push({ idx: i, numOfRows: newNum, value: [] })
       max = i
     }
-    console.log("Setting schema rows", rows);
+   // console.log("Setting schema rows", rows);
     setLastRow(max);
     setSchemaRows(rows);
     setNumOfSchemaRows(rows.length)
   }
-
 
 
   return (
@@ -226,11 +236,13 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
               key={row.idx}
               control={control}
               idx={row.idx}
-              //value={row.value}
+              value={row.value}
+//setValue={setValue}
               removeRow={removeRow}
               addNumOfRows={addNumOfRows}
               numOfSchemaRows={numOfSchemaRows}
               lastRow={lastRow}
+              rowsUpdated={rowsUpdated}
             />
           ))}
 
