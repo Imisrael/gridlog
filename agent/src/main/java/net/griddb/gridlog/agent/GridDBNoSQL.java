@@ -29,9 +29,12 @@ class GridDBNoSQL {
     public RowSet<Row> readConfigs() throws GSSException {
         RowSet<Row> rs = null;
         try {
-            Container<?, Row> container = store.getContainer("configs");
-            Query<Row> query = container.query("SELECT *");
-            rs = query.fetch();
+            Collection<String, Row> container = store.getCollection("configs");
+            if (container != null ) {
+                Query<Row> query = container.query("SELECT *");
+                rs = query.fetch();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

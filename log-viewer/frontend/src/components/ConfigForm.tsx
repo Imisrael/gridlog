@@ -4,22 +4,10 @@ import { HOST } from "../utils/constants";
 import { NewLogEntryInputs } from "../utils/types";
 import SelectForm from "../components/SelectForm.tsx";
 
-// "logtype": "tests",
-// "SAMPLE": "Thu 17 Aug 2023 01:41:49 PM PDT hpelnxdev random log entry",
-// "format": "([\w]+\s[\w]+\s[\d]+\s[\d:]+\s[\w]+\s[\w]+\s[\w]+)\s([\w]+)\s(.+)",
-// "timestamp_pos" : 1,
-// "MYSAMPLE":          "Thu Aug 17 01:19:05 AM UTC 2023",
-// "timestamp_format" : "EEE MMM d hh:mm:ss a z YYYY",
-// "schema" : [
-//     {"name": "timestamp", "type": "TIMESTAMP", "index": ["tree"]},
-//     {"name": "hostname", "type": "STRING", "index": []},
-//     {"name": "log", "type": "STRING", "index": []}
-// ]
-// path
-// interval
-// expiration_time
-// partition_unit
 
+const initialRows = [
+  { idx: 1, numOfRows: 1, high: 1, value: [] },
+]
 
 export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, keyNames: string[] }) {
 
@@ -74,9 +62,6 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
     return schemaArr;
   }
 
-  const initialRows = [
-    { idx: 1, numOfRows: 1, high: 1, value: [] },
-  ]
 
   const [schemaRows, setSchemaRows] = React.useState(initialRows);
   const [numOfSchemaRows, setNumOfSchemaRows] = React.useState(1);
@@ -132,7 +117,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
   }, [schemaRows])
 
   React.useEffect(() => {
-    if (formState.isSubmitSuccessful) {
+    if (isSubmitSuccessful) {
       reset(
         {
           logtype: "",
@@ -147,8 +132,11 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
           partition_unit: 0,
         }
       )
+      setSchemaRows(initialRows);
+      setNumOfSchemaRows(1)
     }
-  }, [formState, submittedData, reset])
+    
+  }, [formState, submittedData, reset, isSubmitSuccessful])
 
 
   const onSubmit: SubmitHandler<NewLogEntryInputs> = (data) => {
@@ -237,7 +225,6 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
               control={control}
               idx={row.idx}
               value={row.value}
-//setValue={setValue}
               removeRow={removeRow}
               addNumOfRows={addNumOfRows}
               numOfSchemaRows={numOfSchemaRows}

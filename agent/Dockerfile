@@ -7,7 +7,7 @@ COPY pom.xml ./
 COPY src ./src
 COPY tests ./tests
 COPY conf ./conf
-COPY access.log .
+COPY data ./data
 
 RUN mvn clean
 RUN mvn package

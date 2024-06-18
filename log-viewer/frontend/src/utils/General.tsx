@@ -5,6 +5,7 @@ export const extractContainerNameFromSchema = (str: string) => {
   let strSplit = str.split('_');
   strSplit.shift(); // remove word schema from beginning of container name
   let name = strSplit.join('_');
+  //console.log("name from extract container name from schema: ", str,  name)
   return name
 }
 
@@ -25,22 +26,24 @@ export const generateColumns = (schemas: { [x: string]: any[]; }) => {
   let listOfHeaderNames = {}
   for (const prop in schemas) {
     //ex of schema key name: schema_LOG_${hostname}_${logtype}
-
     const name = extractContainerNameFromSchema(prop);
     //console.log("name from extract container name: ", name)
 
     listOfHeaderNames[name] = []
-    schemas[prop].forEach(val => {
+
+    for (let i = 0; i < schemas[prop].length; i += 2) {
+      const val = schemas[prop][i]
+      console.log("value of headername: ", val, i, prop)
       let temp = {
-        name: val.name,
-        selector: (row: { [x: string]: any; }) => row[val.name],
+        name: val,
+        selector: (row: { [x: string]: any; }) => row[val],
         right: false,
         grow: 1,
         wrap: true,
         sortable: true
       }
       listOfHeaderNames[name].push(temp)
-    })
+    }
   }
   return listOfHeaderNames;
 }

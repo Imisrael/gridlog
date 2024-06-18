@@ -59,11 +59,16 @@ class GridLogAgent {
         try {
             GridDBNoSQL GridDBNoSQL = new GridDBNoSQL();
             RowSet<Row> rs = GridDBNoSQL.readConfigs();
-            while (rs.hasNext()) {
-                Row row = rs.next();
-                String keyName = row.getString(0);
-                retval.put(keyName, row);
+            if (rs == null ) {
+                return null;
+            } else {
+                while (rs.hasNext()) {
+                    Row row = rs.next();
+                    String keyName = row.getString(0);
+                    retval.put(keyName, row);
+                }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -79,35 +84,40 @@ class GridLogAgent {
         GridLogAgent logAgent = new GridLogAgent(url);
 
         HashMap<String, Row> configs = parseConfigFromDB();
-
-        int k = 0;
-        
-        try {
-            for (String key : configs.keySet()) {
-                
-                System.out.println("iterating through k for rows in configs table: " + k);
-                k++;
-                Row row = configs.get(key);
-                LogsConfig logConf = new LogsConfig();
-                logConf.logtype = row.getString(0);
-                logConf.file_path = row.getString(1);
-                logConf.interval = row.getInteger(2);
-                logConf.expiration_time = row.getInteger(3);
-                logConf.partition_unit = row.getInteger(4);
-                String[] schemaArr = row.getStringArray(8);
-                logConf.schemaArr = new ArrayList<HashMap<String, String>>();
-                for (int i = 0; i < schemaArr.length; i += 2) {
-                    System.out.println("Column: " + schemaArr[i] + "Column Type: " + schemaArr[i + 1]);
-                    HashMap<String, String> tmpMap = new HashMap<String, String>();
-                    tmpMap.put("key", schemaArr[i]);
-                    tmpMap.put("type", schemaArr[i + 1]);
-                    logConf.schemaArr.add(tmpMap);
-                }
-                LogReader logReader = new LogReader(logConf, logAgent.hostname, logAgent.griddbURL);
-                logReader.start();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (String name: configs.keySet()) {
+            System.out.println("configs key set: " + name);
         }
+        if (configs == null) {
+            return;
+        } else {     
+            try {
+                for (String key : configs.keySet()) {
+                    Row row = configs.get(key);
+                    LogsConfig logConf = new LogsConfig();
+                    logConf.logtype = row.getString(0);
+                    logConf.file_path = row.getString(1);
+                    logConf.interval = row.getInteger(2);
+                    logConf.expiration_time = row.getInteger(3);
+                    logConf.partition_unit = row.getInteger(4);
+                    String[] schemaArr = row.getStringArray(8);
+                    for (String s: schemaArr) {
+                        System.out.println("S: " + s + " " + logConf.logtype);
+                    }
+                    logConf.schemaArr = new ArrayList<HashMap<String, String>>();
+                    for (int i = 0; i < schemaArr.length; i += 2) {
+                        System.out.println("Column: " + schemaArr[i] + "Column Type: " + schemaArr[i + 1]);
+                        HashMap<String, String> tmpMap = new HashMap<String, String>();
+                        tmpMap.put("key", schemaArr[i]);
+                        tmpMap.put("type", schemaArr[i + 1]);
+                        logConf.schemaArr.add(tmpMap);
+                    }
+                    LogReader logReader = new LogReader(logConf, logAgent.hostname, logAgent.griddbURL);
+                    logReader.start();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }
