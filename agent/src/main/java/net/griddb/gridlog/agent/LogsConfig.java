@@ -8,6 +8,6 @@ class LogsConfig {
     String file_path;
     Integer interval;
     Integer expiration_time;
-    Integer partition_unit;
+    String partition_unit;
     ArrayList<HashMap<String, String>> schemaArr;
 };

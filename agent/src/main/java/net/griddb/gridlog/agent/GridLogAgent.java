@@ -48,7 +48,7 @@ class GridLogAgent {
     // 1 file_path STRING
     // 2 interval INTEGER
     // 3 expiration_time INTEGER
-    // 4 partition_unit INTEGER
+    // 4 partition_unit STRING
     // 5 timestamp_position INTEGER
     // 6 regex_format STRING
     // 7 timestamp_format STRING
@@ -98,7 +98,7 @@ class GridLogAgent {
                     logConf.file_path = row.getString(1);
                     logConf.interval = row.getInteger(2);
                     logConf.expiration_time = row.getInteger(3);
-                    logConf.partition_unit = row.getInteger(4);
+                    logConf.partition_unit = row.getString(4);
                     String[] schemaArr = row.getStringArray(8);
                     for (String s: schemaArr) {
                         System.out.println("S: " + s + " " + logConf.logtype);

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import com.toshiba.mwcloud.gs.*;
+import java.util.Collections;
 
 import net.griddb.gridlog.logviewer.GridDBController.ConfigBody;
 
@@ -47,7 +48,7 @@ class GridDBNoSQL {
             columnList.add(new ColumnInfo("file_path", GSType.STRING));
             columnList.add(new ColumnInfo("interval", GSType.INTEGER));
             columnList.add(new ColumnInfo("expiration_time", GSType.INTEGER));
-            columnList.add(new ColumnInfo("partition_unit", GSType.INTEGER));
+            columnList.add(new ColumnInfo("partition_unit", GSType.STRING));
             columnList.add(new ColumnInfo("timestamp_position", GSType.INTEGER));
             columnList.add(new ColumnInfo("regex_format", GSType.STRING));
             columnList.add(new ColumnInfo("timestamp_format", GSType.STRING));
@@ -61,7 +62,6 @@ class GridDBNoSQL {
             e.printStackTrace();
         }
 
-        // Add data
         try {
             Collection<String, Row> container = store.getCollection(cn);
             Row row = container.createRow();
@@ -69,7 +69,7 @@ class GridDBNoSQL {
             row.setString(1, data.file_path);
             row.setInteger(2, data.interval);
             row.setInteger(3, data.expiration_time);
-            row.setInteger(4, data.partition_unit);
+            row.setString(4, data.partition_unit);
             row.setInteger(5, data.timestamp_position);
             row.setString(6, data.regex_format);
             row.setString(7, data.timestamp_format);
@@ -95,11 +95,29 @@ class GridDBNoSQL {
         String cn = "configs";
         List<String> keyNames = new ArrayList<String>();
         try {
-            Collection<String, ConfigInfo> container = store.getCollection(cn, ConfigInfo.class);
-            Query<ConfigInfo> query = container.query("select *");
-            RowSet<ConfigInfo> rs = query.fetch(false);
+            Collection<String, ConfigBody> container = store.getCollection(cn, ConfigBody.class);
+            Query<ConfigBody> query = container.query("select *");
+            RowSet<ConfigBody> rs = query.fetch(false);
             while (rs.hasNext()) {
                 keyNames.add(rs.next().logtype);
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading configs container");
+            e.printStackTrace();
+        }
+        return keyNames;
+    }
+
+    public List<String> getConfigSchema(String logtype) {
+        String cn = "configs";
+        List<String> keyNames = new ArrayList<String>();
+        try {
+            Collection<String, ConfigBody> container = store.getCollection(cn, ConfigBody.class);
+            Query<ConfigBody> query = container.query("select * where logtype = '" + logtype + "'");
+            RowSet<ConfigBody> rs = query.fetch(false);
+            while (rs.hasNext()) {
+                Collections.addAll(keyNames, rs.next().schemaArr);
+              //  keyNames.add(rs.next().schema);
             }
         } catch (Exception e) {
             System.out.println("Error reading configs container");

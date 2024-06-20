@@ -47,7 +47,7 @@ class LogReader extends Thread {
         String path, 
         String griddbURL,
         Integer expiration_time,
-        Integer part_unit,
+        String part_unit,
         ArrayList<HashMap<String, String>> containerSchema
         ) throws IOException {
         System.out.println("Monitoring new file: " + logtype + " " + "path " + path);
@@ -55,8 +55,8 @@ class LogReader extends Thread {
         BufferedReader buffered = new BufferedReader(reader);
         GridDBWriter gWriter = new GridDBWriter(hostname, logtype, path, griddbURL);
         String cn = getContainerName(hostname, logtype);
-        gridDB.createRAWLOGContainer(cn, expiration_time.toString(), part_unit.toString()); // creates container for specific logs
-        gridDB.createLOGContainer(cn, "30", "DAY", containerSchema);
+        gridDB.createRAWLOGContainer(cn, expiration_time.toString(), part_unit); // creates container for specific logs
+        gridDB.createLOGContainer(cn, expiration_time.toString(), part_unit, containerSchema);
         gWriter.createRAWLOGWrites();
 
         // string for raw log container
@@ -118,7 +118,7 @@ class LogReader extends Thread {
         String logtype = logConf.logtype;
         Integer interval = logConf.interval;
         Integer expiration_time = logConf.expiration_time;
-        Integer partition_unit = logConf.partition_unit;
+        String partition_unit = logConf.partition_unit;
         ArrayList<HashMap<String, String>> containerSchema = logConf.schemaArr;
         File f = new File(filePath);
         try {

@@ -18,7 +18,7 @@ export default function ManagedLogTypes(props:
     file_path: "log-half-second.txt",
     interval: 1000,
     expiration_time: 5,
-    partition_unit: 10,
+    partition_unit: 'DAY',
     schemaArr: ["timestamp,timestamp,hostname,string,log,string"],
     schema: {
       columnNames: ['timestamp','hostname','log'],
@@ -40,7 +40,7 @@ export default function ManagedLogTypes(props:
     file_path: "/nginx/logs/fallback_access.log",
     interval: 2000,
     expiration_time: 10,
-    partition_unit: 5,
+    partition_unit: 'DAY',
     schemaArr: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"],
     schema: {
       columnNames: ['timestamp','statusCode','httpMethod', 'httpProtocol', 'hostname', 'requestedURL', 'clientIP', 'contentLength', 'gzip', 'userAgent'],
@@ -67,8 +67,8 @@ export default function ManagedLogTypes(props:
     timestamp_format: "d/MMM/yyyy:HH:mm:ss Z",
     file_path: "/app/data/test.log",
     interval: 2000,
-    expiration_time: 30,
-    partition_unit: 10,
+    expiration_time: 10000,
+    partition_unit: 'DAY',
     schemaArr: [],
     schema: {
       columnNames: [

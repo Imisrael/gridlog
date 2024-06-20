@@ -42,7 +42,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
     colNames: string[],
     colTypes: { value: string, label?: string }[]
   ): string[] {
-    console.log("gen schema from obj: ", colNames, colTypes)
+    //console.log("gen schema from obj: ", colNames, colTypes)
     if (colNames.length !== colTypes.length) {
       return []
     }
@@ -50,7 +50,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
 
     if (colTypes[0].value !== undefined) {
       colTypes.forEach(t => types.push(t.value))
-    } else { 
+    } else {
       types = colTypes
     }
 
@@ -82,28 +82,28 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       setValue("partition_unit", exampleLogEntry.partition_unit);
 
       const schemaArr: string[] = genSchemaFromObj(exampleLogEntry.schema.columnNames, exampleLogEntry.schema.columnTypes);
-      console.log("Schema arr in gen function", schemaArr);
+   //   console.log("Schema arr in gen function", schemaArr);
       // we take the length divded by two the array is in colname,coltype pairs
       const n = schemaArr.length / 2
       addNumOfRows(n);
 
-      
+
       if (schemaRows.length === n) {
         const copy = schemaRows;
         let k = 0;
         for (let i = 0; i < schemaArr.length; i += 2) {
           copy[k].value[0] = schemaArr[i];
-          copy[k].value[1] = schemaArr[i+1];
-          setValue("schema.columnNames."+k, schemaArr[i]);
-          setValue("schema.columnTypes."+k, schemaArr[i+1]);
+          copy[k].value[1] = schemaArr[i + 1];
+          setValue("schema.columnNames." + k, schemaArr[i]);
+          setValue("schema.columnTypes." + k, schemaArr[i + 1]);
           k++;
         }
-    //    console.log("Schema rows to be pushed: ", copy)
+        //    console.log("Schema rows to be pushed: ", copy)
         setSchemaRows(copy);
-        
-        
+
+
         return;
-      } 
+      }
     }
   }, [exampleLogEntry, schemaRows, setValue]);
 
@@ -129,13 +129,13 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
           file_path: "",
           interval: 0,
           expiration_time: 0,
-          partition_unit: 0,
+          partition_unit: "",
         }
       )
       setSchemaRows(initialRows);
       setNumOfSchemaRows(1)
     }
-    
+
   }, [formState, submittedData, reset, isSubmitSuccessful])
 
 
@@ -149,7 +149,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       const colNames = data.schema.columnNames.filter(name => name !== undefined)
       const colTypes: { value: string, label?: string }[] = data.schema.columnTypes.filter(type => type !== undefined)
 
-      
+
 
       const schemaArr: string[] = genSchemaFromObj(colNames, colTypes);
       data.schemaArr = schemaArr;
@@ -197,7 +197,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       rows.push({ idx: i, numOfRows: newNum, value: [] })
       max = i
     }
-   // console.log("Setting schema rows", rows);
+    // console.log("Setting schema rows", rows);
     setLastRow(max);
     setSchemaRows(rows);
     setNumOfSchemaRows(rows.length)
@@ -218,7 +218,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
           <input type="text" placeholder="file path" {...register("file_path", { required: true })} />
           <input type="number" placeholder="interval" {...register("interval", { required: true })} />
           <input type="number" placeholder="expiration time" {...register("expiration_time", { required: true })} />
-          <input type="number" placeholder="partition unit" {...register("partition_unit", { required: true })} />
+          <input type="text" placeholder="partition unit" {...register("partition_unit", { required: true })} />
           {schemaRows.map(row => (
             <SelectForm
               key={row.idx}

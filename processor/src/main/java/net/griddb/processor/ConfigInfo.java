@@ -7,7 +7,7 @@ class ConfigInfo {
     String file_path;
     Integer interval;
     Integer expiration_time;
-    Integer partition_unit;
+    String partition_unit;
     Integer timestamp_position;
     String regex_format;
     String timestamp_format;
