@@ -18,9 +18,3 @@ If GridDB fails to start, many of the containers won't either. Just run `docker 
 2. ./tests/runTestInDocker.sh
 3. ./tests/readGridDBContainer.sh
 
-## Running Many Demo Agent hosts
-
-- You can run this without running any of the above. It will start the GridDB server and the web api before running the demos and their tests
-- You can also run this while the rest of the containers are runningw
-
-1. docker compose up agent_demo_1 agent_demo_2 agent_demo_3 agent_demo_4 --force-recreate
