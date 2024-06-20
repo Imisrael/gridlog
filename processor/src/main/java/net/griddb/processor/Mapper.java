@@ -26,17 +26,27 @@ class Mapper {
     public void setColumn(Row row, int index, Object value, String type) throws GSException {
 
         System.out.println("set Column("+index+") :"+type+" "+value);
+
+        if (value == null){
+            System.out.println("NULL TYPED FOR Matcher GROUP");
+            row.setNull(index);
+            return;
+        }
+
         switch(type) {
             case "integer":
                 String valString = value.toString();
-                System.out.println(Integer.parseInt(valString));
                 row.setInteger(index, Integer.parseInt(valString));
                 return;
             case "timestamp":
                 row.setTimestamp(index, (Date)value);
                 return;
             case "string":
-                row.setString(index, (String)value);
+                String strVal = (String) value;
+                if (strVal.isEmpty()) 
+                    row.setString(index, "emptyStr");
+                else 
+                    row.setString(index, strVal);
                 return;
         }
 

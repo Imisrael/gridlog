@@ -62,7 +62,7 @@ public class GridDBController {
         public String file_path;
         public int interval;
         public int expiration_time;
-        public int partition_unit;
+        public String partition_unit;
         public String[] schemaArr;
     }
       

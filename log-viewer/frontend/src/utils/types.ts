@@ -16,5 +16,5 @@ export type NewLogEntryInputs = {
     file_path: string
     interval: number
     expiration_time: number
-    partition_unit: number
+    partition_unit: string
 }

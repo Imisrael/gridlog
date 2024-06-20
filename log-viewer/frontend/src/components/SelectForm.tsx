@@ -80,7 +80,7 @@ export default function SelectForm(props:
 
   return (
 
-    <div className="container">
+    <div>
       <div className="flex flex-row">
         <div className="w-1/3">
         <Controller

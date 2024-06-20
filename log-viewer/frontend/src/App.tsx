@@ -92,6 +92,7 @@ const App = () => {
           let schemaNames = keys.filter(word => word.includes("schema"));
           // populating the schemas obj with the data
           schemaNames.forEach(s => schemas[s] = result[s])
+          
           const listOfHeaderNames = generateColumns(schemas);
           setHeaderNames(listOfHeaderNames);
 

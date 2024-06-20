@@ -24,6 +24,7 @@ import java.sql.Types;
 public class GridDB {
 
     public Connection con;
+    GridDBNoSQL GridDBNoSQL;
 
     public GridDB() {
         try {
@@ -45,6 +46,12 @@ public class GridDB {
             //System.out.println(jdbcUrl);
 
             con = DriverManager.getConnection(jdbcUrl, prop);
+
+            try {
+                GridDBNoSQL = new GridDBNoSQL();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         } catch (Exception e) {
             System.out.println("Could not connect to GridDB via JDBC, exiting.");
@@ -117,16 +124,24 @@ public class GridDB {
         String logtype) {
 
     HashMap<String, List<?>> retval = new HashMap<>();
-    ConfigParser configParser = new ConfigParser();
-    configParser.parseConfig("conf/config.json");
+    
+  //  ConfigParser configParser = new ConfigParser();
+  //  configParser.parseConfig("conf/config.json");
 
     for (String cont : listOfContainers) {
         String contName = cont.replaceAll("RAWLOG", "LOG");
         String[] arr = cont.split("_", 3);
         String logType = arr[2];
 
-        ArrayList<HashMap<String, String>> temp = configParser.rules.get(logType).schema;
-        retval.put("schema_" + contName, temp);
+        List<String> schema = GridDBNoSQL.getConfigSchema(logType);
+        for (String s : schema) {
+            System.out.println("printing out schema arr");
+            System.out.println(s);
+        }
+        
+
+    //    ArrayList<HashMap<String, String>> temp = configParser.rules.get(logType).schema;
+        retval.put("schema_" + contName, schema);
     }
 
     try {
