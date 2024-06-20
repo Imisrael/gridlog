@@ -52,7 +52,7 @@ public class LogProcessor {
 
         ArrayList<HashMap<String, String>> schema = new ArrayList<HashMap<String, String>>();
         for (int i = 0; i < schemaArr.length; i += 2) {
-            System.out.println("Column: " + schemaArr[i] + " Column Type: " + schemaArr[i + 1]);
+          //  System.out.println("Column: " + schemaArr[i] + " Column Type: " + schemaArr[i + 1]);
             HashMap<String, String> tmpMap = new HashMap<String, String>();
             tmpMap.put("name", schemaArr[i]);
             tmpMap.put("type", schemaArr[i + 1]);

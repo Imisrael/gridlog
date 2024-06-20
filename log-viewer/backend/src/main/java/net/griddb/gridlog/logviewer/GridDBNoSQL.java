@@ -7,8 +7,6 @@ import java.util.Properties;
 import com.toshiba.mwcloud.gs.*;
 import java.util.Collections;
 
-import net.griddb.gridlog.logviewer.GridDBController.ConfigBody;
-
 class GridDBNoSQL {
 
     public GridStore store = null;

@@ -84,9 +84,9 @@ class GridLogAgent {
         GridLogAgent logAgent = new GridLogAgent(url);
 
         HashMap<String, Row> configs = parseConfigFromDB();
-        for (String name: configs.keySet()) {
-            System.out.println("configs key set: " + name);
-        }
+        // for (String name: configs.keySet()) {
+        //     System.out.println("configs key set: " + name);
+        // }
         if (configs == null) {
             return;
         } else {     
@@ -100,12 +100,12 @@ class GridLogAgent {
                     logConf.expiration_time = row.getInteger(3);
                     logConf.partition_unit = row.getString(4);
                     String[] schemaArr = row.getStringArray(8);
-                    for (String s: schemaArr) {
-                        System.out.println("S: " + s + " " + logConf.logtype);
-                    }
+                    // for (String s: schemaArr) {
+                    //     System.out.println("S: " + s + " " + logConf.logtype);
+                    // }
                     logConf.schemaArr = new ArrayList<HashMap<String, String>>();
                     for (int i = 0; i < schemaArr.length; i += 2) {
-                        System.out.println("Column: " + schemaArr[i] + "Column Type: " + schemaArr[i + 1]);
+             //           System.out.println("Column: " + schemaArr[i] + "Column Type: " + schemaArr[i + 1]);
                         HashMap<String, String> tmpMap = new HashMap<String, String>();
                         tmpMap.put("key", schemaArr[i]);
                         tmpMap.put("type", schemaArr[i + 1]);
