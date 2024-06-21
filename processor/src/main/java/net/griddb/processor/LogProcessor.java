@@ -126,14 +126,10 @@ public class LogProcessor {
                 containerRowsMap.put(proc_container, proc_logs);
 
             }
-            // System.out.println("Putting Containers: " + containerRowsMap);
             try {
-                // for (Row row : containerRowsMap.get("LOG_agent_intrusion")) {
-                //     System.out.println(row);
-                // }
                 db.store.multiPut(containerRowsMap);
             } catch (Exception e) {
-                System.out.println("Error with insertingf data");
+                System.out.println("Error with inserting data");
                 e.printStackTrace();
             }
 

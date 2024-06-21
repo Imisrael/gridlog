@@ -1,21 +1,31 @@
 import fs from 'node:fs';
 
 (async () => {
+    if (process.argv.length < 3 ) {
+        console.error("Error: must include exactly 1 command line argument");
+        return;
+    }
+    const logtype = process.argv[2];
+    if (logtype !== "benign"  && logtype !== "exploit") {
+        console.error("Error: command line argument must be EITHER 'exploit' or 'benign'");
+        return;
+    }
+
     await parseAllFiles();
-    console.log("All finished!")
 })();
 
 async function parseAllFiles() {
 
-    const __dirname = new URL('../data/exploit', import.meta.url).pathname;
+    const __dirname = new URL('../data/' + process.argv[2], import.meta.url).pathname;
     const files = fs.readdirSync(__dirname).filter(fn => fn.endsWith('.webgateway'));
-    const writerStream = fs.createWriteStream('logs_proxy_format_exploit.log');
+    const writerStream = fs.createWriteStream('../data/logs_proxy_format_' + process.argv[2] + '.log');
 
     files.forEach(file => {
         console.info("reading file: ", __dirname + "/" + file);
         const readerStream = fs.createReadStream(__dirname + "/" + file)
         readerStream.setEncoding('UTF8');
         readerStream.on('data', chunk => {
+            chunk = chunk.replace(/['"]+/g, ''); // remove all quotation marks from files
             writerStream.write(chunk);
         })
         readerStream.on('error', function (err) {
