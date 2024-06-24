@@ -26,6 +26,7 @@ async function parseAllFiles() {
         readerStream.setEncoding('UTF8');
         readerStream.on('data', chunk => {
             chunk = chunk.replace(/['"]+/g, ''); // remove all quotation marks from files
+            chunk = chunk.replace(/  +/g, ' ') // change all double spaces to singular ones
             writerStream.write(chunk);
         })
         readerStream.on('error', function (err) {
