@@ -99,6 +99,15 @@ services:
       - '2828:2828'
     expose: 
       - '2828'
+  
+  machine-learning:
+    build: 
+      context: ./machine-learning
+      dockerfile: Dockerfile
+    container_name: machine-learning
+    depends_on:
+      griddb-server:
+        condition: service_healthy
 
   agent_demo_1:
     build:
