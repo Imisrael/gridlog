@@ -19,7 +19,7 @@ ENV LD_LIBRARY_PATH /usr/lib/jvm/java-11-openjdk/lib/server/
 WORKDIR /app
 RUN python3 -m venv ${ENV_DIR}
 RUN source ${ENV_DIR}/bin/activate 
-RUN ${ENV_DIR}/bin/pip3 install pandas JayDeBeApi jpype1 numpy
+RUN ${ENV_DIR}/bin/pip3 install pandas JayDeBeApi jpype1 numpy sqlalchemy-jdbc-generic
 
 COPY griddb.py /app/griddb.py
 CMD ["/app/venv/bin/python3", "griddb.py"]
