@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.net.InetAddress;
+import java.lang.Thread;
 import com.toshiba.mwcloud.gs.*;
 
 import net.griddb.gridlog.agent.LogsConfig;
@@ -113,6 +114,7 @@ class GridLogAgent {
                     }
                     LogReader logReader = new LogReader(logConf, logAgent.hostname, logAgent.griddbURL);
                     logReader.start();
+                    Thread.sleep(1000);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

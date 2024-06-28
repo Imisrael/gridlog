@@ -17,9 +17,19 @@ ENV CLASSPATH /app/lib/gridstore-jdbc-5.6.0.jar
 ENV LD_LIBRARY_PATH /usr/lib/jvm/java-11-openjdk/lib/server/
 
 WORKDIR /app
+RUN mkdir /app/data
 RUN python3 -m venv ${ENV_DIR}
 RUN source ${ENV_DIR}/bin/activate 
-RUN ${ENV_DIR}/bin/pip3 install pandas JayDeBeApi jpype1 numpy sqlalchemy-jdbc-generic
+RUN ${ENV_DIR}/bin/pip3 install \
+  pandas \
+  jpype1 \
+  numpy \
+  sqlalchemy-jdbc-generic \
+  scikit-learn \
+  matplotlib
 
 COPY griddb.py /app/griddb.py
-CMD ["/app/venv/bin/python3", "griddb.py"]
+COPY aktaion /app/aktaion
+ENTRYPOINT ["tail"]
+CMD ["-f","/dev/null"]
+#CMD ["/app/venv/bin/python3", "griddb.py"]

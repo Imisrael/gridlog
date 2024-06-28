@@ -91,13 +91,15 @@ export default function ManagedLogTypes(props:
         'bytesReceived',
         'bytesSent',
         'userAgent',
-        'url2',
-        'url2Protocol',
-        'url2Prefix',
-        'url2Suffix',
+        'referrer',
+        'refProtocol',
+        'refPrefix',
+        'refSuffix',
         'meta1',
         'meta2',
         'meta3',
+        'exploit',
+        'labelType',
       ],
       columnTypes: [
         {value: 'timestamp'},
@@ -125,6 +127,8 @@ export default function ManagedLogTypes(props:
         {value: 'string'},
         {value: 'string'},
         {value: 'string'},
+        {value: 'string'},
+        {value: 'boolean'},
         {value: 'string'},
       ]
     }
