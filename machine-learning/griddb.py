@@ -64,21 +64,25 @@ eng_url = URL.create(
 eng = create_engine(eng_url)
 with eng.connect() as c:
     print("Connected")
-    df_proxy_raw_log_exploit = pd.read_sql("SELECT * FROM LOG_agent_intrusion_benign LIMIT 15000", c)
-    df_proxy_raw_log_exploit['timestamp'] = pd.to_datetime(df_proxy_raw_log_exploit['timestamp'])
-    epochTime = (df_proxy_raw_log_exploit['timestamp'] - dt.datetime(1970,1,1)).dt.total_seconds()
-    df_proxy_raw_log_exploit['epochTime'] = pd.to_datetime(epochTime, unit='s')
-    df_proxy_raw_log_exploit.rename(columns={"timestamp": "dateTime"})
-    # print(df_proxy_raw_log_exploit.info())
-    # print(df_proxy_raw_log_exploit.head)
-    try:
-        df_mb_be = create_df_of_sliding_windows(df_proxy_raw_log_exploit, df_mb_be)
-        print(str(df_mb_be))
-    except UnicodeDecodeError:
-        print("Unicode Parsing Error")
+    df_proxy_exploit = pd.read_sql("SELECT * FROM LOG_agent_intrusion WHERE exploit = True", c)
+    df_proxy_benign =  pd.read_sql("SELECT * FROM LOG_agent_intrusion WHERE exploit = True", c) 
+    df_proxy_raw_log['timestamp'] = pd.to_datetime(df_proxy_raw_log['timestamp'])
+    epochTime = (df_proxy_raw_log['timestamp'] - dt.datetime(1970,1,1)).dt.total_seconds()
+    df_proxy_raw_log['epochTime'] = pd.to_datetime(epochTime, unit='s')
+    df_proxy_raw_log.rename(columns={"timestamp": "dateTime"})
+    df_proxy_raw_exploit = df_proxy_raw_log.loc[df_proxy_raw_log['exploit']]
+    df_proxy_raw_benign = df_proxy_raw_log.loc[df_proxy_raw_log['exploit']==False]
 
-    output_path = 'data/benign_proxy_microbehaviors.csv'
-    print("Writing Benign Proxy Microbehavior Statistics to CSV file: " + output_path)
-    df_mb_be.to_csv(output_path)
-    print("Done Writing Benign Proxy Microbehavior Data")
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(df_proxy_raw_exploit.info())
+    print(df_proxy_raw_benign.head)
+    # try:
+    #     df_mb_be = create_df_of_sliding_windows(df_proxy_raw_log, df_mb_be)
+    #     print(str(df_mb_be))
+    # except UnicodeDecodeError:
+    #     print("Unicode Parsing Error")
+
+    # output_path = 'data/benign_proxy_microbehaviors.csv'
+    # print("Writing Benign Proxy Microbehavior Statistics to CSV file: " + output_path)
+    # df_mb_be.to_csv(output_path)
+    # print("Done Writing Benign Proxy Microbehavior Data")
+    # print("--- %s seconds ---" % (time.time() - start_time))

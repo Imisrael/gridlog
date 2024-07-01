@@ -189,6 +189,11 @@ public class GridDB {
                         Integer val = rs.getInt(i);
                         values.put(name, val);
                         valuesArr.add(val);
+                    } else if (rsmd.getColumnType(i) == Types.BOOLEAN) {
+                        String name = rsmd.getColumnName(i);
+                        Boolean val = rs.getBoolean(i);
+                        values.put(name, val);
+                        valuesArr.add(val);
                     }
                 }
                 // values.put("logtype", temp_log_type);
@@ -235,6 +240,10 @@ public HashMap<String, List<?>> queryFromBuilder(String queryStr) {
                 } else if (rsmd.getColumnType(i) == Types.INTEGER) {
                     String name = rsmd.getColumnName(i);
                     Integer val = rs.getInt(i);
+                    values.put(name, val);
+                } else if (rsmd.getColumnType(i) == Types.BOOLEAN) {
+                    String name = rsmd.getColumnName(i);
+                    Boolean val = rs.getBoolean(i);
                     values.put(name, val);
                 }
             }

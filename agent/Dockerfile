@@ -1,5 +1,8 @@
 FROM maven
 
+RUN apt update \ 
+    && apt install zip unzip --no-install-recommends
+
 WORKDIR /app
 
 COPY pom.xml ./

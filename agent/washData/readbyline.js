@@ -21,8 +21,9 @@ async function parseAllFiles() {
 
     const __dirname = new URL('../data/' + logtype, import.meta.url).pathname;
     const files = fs.readdirSync(__dirname).filter(fn => fn.endsWith('.webgateway'));
-    const writerStream = fs.createWriteStream('../data/logs_proxy_format_' + logtype + '.log');
-
+    const writerStream = fs.createWriteStream('../data/logs_proxy_format' + '.log', {flags: 'a'});
+        
+    let i = 1;
     files.forEach(file => {
         console.info("reading file: ", __dirname + "/" + file);
         const readLine = readline.createInterface({
@@ -37,6 +38,12 @@ async function parseAllFiles() {
             let exploit = " False"
             if (logtype === "exploit") {
                 exploit = " True"
+            } else {
+                // creating logic to skip over some lines (dataset too large)
+                if ((i % 2) === 0  || (i % 5) === 0) {
+                    i++
+                    return;
+                }
             }
             const labelType = " Set"
             const lb = "\n";
@@ -47,6 +54,8 @@ async function parseAllFiles() {
             str = str.replace(/['"]+/g, ''); // remove all quotation marks from files
             str = str.replace(/  +/g, ' ') // change all double spaces to singular ones
             writerStream.write(str);
+         //   console.log("Writing file to: '../data/logs_proxy_format.log'")
+            i++
         })
         readLine.on('error', err => {
             console.log(err.stack);

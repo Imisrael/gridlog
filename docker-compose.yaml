@@ -107,8 +107,8 @@ services:
       context: ./machine-learning
       dockerfile: Dockerfile
     container_name: machine-learning
-    volumes:
-    - ./data:/app/data
+    profiles:
+      - donotstart
     depends_on:
       griddb-server:
         condition: service_healthy
