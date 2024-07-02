@@ -30,6 +30,6 @@ RUN ${ENV_DIR}/bin/pip3 install \
 
 COPY griddb.py /app/griddb.py
 COPY aktaion /app/aktaion
-#ENTRYPOINT ["tail"]
-#CMD ["-f","/dev/null"]
+# ENTRYPOINT ["tail"]
+# CMD ["-f","/dev/null"]
 CMD ["/app/venv/bin/python3", "griddb.py"]
