@@ -2,9 +2,15 @@ package net.griddb.gridlog.processor;
 
 import java.util.Locale;
 import java.util.Properties;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toshiba.mwcloud.gs.*;
 import java.util.regex.Pattern;
+
 import java.util.regex.Matcher;
+import java.sql.Types;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.time.LocalDateTime;
@@ -91,6 +97,27 @@ public class LogProcessor {
         return row;
     }
 
+    private String convertToJson(Row logRow, ConfigInfo config) throws JsonProcessingException, GSException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        HashMap<String, Object> values = new HashMap<>();
+
+        String[] schemaArr = config.schema;
+        ContainerInfo info = logRow.getSchema();
+        int n = info.getColumnCount();
+
+        int j = 0;
+        for (int i = 0; i < n; i++) {
+            Object val = logRow.getValue(i);
+            String name = schemaArr[j];
+            j += 2;
+            values.put(name, val);
+        }
+        String jsonData = objectMapper.writeValueAsString(values);
+
+        return jsonData;
+        
+    }
+
     public static void main(String args[]) throws GSException, InterruptedException {
 
         DB db = new DB();
@@ -112,6 +139,8 @@ public class LogProcessor {
                         System.out.println(log.logtype + "~~~~~~");
                         System.out.println("configs.get(log.logtype)" + configs.get(log.logtype));
                         Row row = lp.patternMatcher(proc_container, log, configs.get(log.logtype));
+                        String jsonStr = lp.convertToJson(row, configs.get(log.logtype));
+                        System.out.println(jsonStr);
                         if (row != null) {
                             proc_logs.add(row);
                             System.out.println("parsing this row: " + row);

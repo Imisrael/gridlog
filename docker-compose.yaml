@@ -71,7 +71,8 @@ services:
   
   log-processor:
     build:
-      dockerfile: ./Dockerfile.log-processor
+      context: processor
+      dockerfile: Dockerfile
     container_name: log-processor
     depends_on:
       griddb-server:
@@ -107,6 +108,8 @@ services:
       context: ./machine-learning
       dockerfile: Dockerfile
     container_name: machine-learning
+    volumes:
+    - ./data:/app/data
     profiles:
       - donotstart
     depends_on:

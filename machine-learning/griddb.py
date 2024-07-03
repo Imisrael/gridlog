@@ -5,16 +5,15 @@ from sqlalchemy.engine.url import URL
 import datetime as dt
 import pandas as pd
 from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
+import gzip, pickle, pickletools
 
 import aktaion.microbehavior_core as ex
 
 # Load os to parse directories
-import os
 import time
 
 start_time = time.time()
@@ -28,6 +27,7 @@ df_mb_ex = pd.DataFrame()
 df_mb_be = pd.DataFrame()
 
 window_len = 5
+num_of_rows = "90000"
 
 # helper method for building a dataframe of sliding windows
 def create_df_of_sliding_windows(df_raw_log, df_microbeahaviors):
@@ -97,6 +97,13 @@ def random_forest(df_proxy_exploit, df_proxy_benign):
                     verbose=0, warm_start=False)
 
         y_predict = random_forest.predict(X_test)
+        filepath = "/app/data/random_forest.pkl"
+        with gzip.open(filepath, "wb") as f:
+            pickled = pickle.dumps(random_forest)
+            optimized_pickle = pickletools.optimize(pickled)
+            print("Writing to file")
+            f.write(optimized_pickle)
+
         print(accuracy_score(y_test, y_predict))
 
 
@@ -119,19 +126,9 @@ def random_forest(df_proxy_exploit, df_proxy_benign):
         # Print the feature ranking
         print("Feature ranking:")
 
-
-
         for f in range(len(importances)):
             print("%d. feature %s (%f)" % (f + 1, featureList[f], importances[indices[f]]))
 
-        # Plot the feature importances of the forest
-        plt.figure()
-        plt.title("Feature importances")
-        plt.bar(range(len(importances)), importances[indices],
-            color="b", yerr=std[indices], align="center")
-        plt.xticks(range(len(importances)), featureList[indices], rotation=90)
-        plt.xlim([-1, len(importances)])
-        plt.show()
     except Exception as e: 
         print(e)
         print("Failure")
@@ -156,10 +153,10 @@ eng_url = URL.create(
 eng = create_engine(eng_url)
 with eng.connect() as c:
     print("Connected")
-    print("Querying GridDB: " + "SELECT * FROM LOG_agent_intrusion WHERE exploit = True limit 100000")
-    print("Querying GridDB: " + "SELECT * FROM LOG_agent_intrusion WHERE exploit = False limit 100000")
-    df_proxy_exploit = pd.read_sql("SELECT * FROM LOG_agent_intrusion WHERE exploit = True limit 100000", c)
-    df_proxy_benign =  pd.read_sql("SELECT * FROM LOG_agent_intrusion WHERE exploit = False limit 100000", c) 
+    print("Querying GridDB: " + "SELECT * FROM LOG_agent_intrusion WHERE exploit = True limit " + num_of_rows)
+    print("Querying GridDB: " + "SELECT * FROM LOG_agent_intrusion WHERE exploit = False limit " + num_of_rows)
+    df_proxy_exploit = pd.read_sql("SELECT * FROM LOG_agent_intrusion WHERE exploit = True limit " + num_of_rows, c)
+    df_proxy_benign =  pd.read_sql("SELECT * FROM LOG_agent_intrusion WHERE exploit = False limit " + num_of_rows, c) 
 
     df_proxy_exploit['timestamp'] = pd.to_datetime(df_proxy_exploit['timestamp'])
     df_proxy_benign['timestamp'] = pd.to_datetime(df_proxy_benign['timestamp'])
