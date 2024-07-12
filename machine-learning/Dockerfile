@@ -25,7 +25,7 @@ RUN ${ENV_DIR}/bin/pip3.12 install \
   jpype1 \
   numpy \
   sqlalchemy-jdbc-generic \
-  scikit-learn 
+  scikit-learn==1.5.0 
 
 COPY griddb.py /app/griddb.py
 COPY aktaion /app/aktaion

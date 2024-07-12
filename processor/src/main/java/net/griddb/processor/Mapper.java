@@ -27,7 +27,7 @@ class Mapper {
     }
     public void setColumn(Row row, int index, Object value, String type) throws GSException {
 
-//        System.out.println("set Column("+index+") :"+type+" "+value);
+    //    System.out.println("set Column("+index+") :"+type+" "+value);
 
         // Value can end up null if the regex group doesn't exist (for example, www in a URL)
         if (value == null){

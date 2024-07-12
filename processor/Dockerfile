@@ -9,9 +9,10 @@ RUN apk add --no-cache \
   python3-dev \
   zip \
   py3-virtualenv \
-  maven
+  maven 
 
 ENV ENV_DIR /app/python/venv
+ENV PTHREAD_STACK_MIN 2097152
 
 WORKDIR /app/python
 RUN python3.12 -m venv ${ENV_DIR}
@@ -19,9 +20,9 @@ RUN source ${ENV_DIR}/bin/activate
 RUN ${ENV_DIR}/bin/pip3.12 install \
   pandas \
   numpy \
-  scikit-learn 
+  scikit-learn==1.5.0
 
-COPY inference.py /app/python/inference.py
+COPY python/ /app/python/
 
 #CMD ["/app/venv/bin/python3.12", "griddb.py"]
 

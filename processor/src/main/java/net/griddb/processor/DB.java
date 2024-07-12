@@ -48,15 +48,18 @@ class DB {
         if (lastPoll == null)
             query = col.query("select *");
         else {
-            System.out.println("select * where timestamp >= TO_TIMESTAMP_MS(" + lastPoll + ")");
+           // System.out.println("select * where timestamp >= TO_TIMESTAMP_MS(" + lastPoll + ")");
             query = col.query("select * where timestamp >= TO_TIMESTAMP_MS(" + lastPoll.toEpochMilli() + ")");
         }
         RowSet<RawLogInfo> rs = query.fetch(false);
         while (rs.hasNext()) {
             retval.add(rs.next().name);
         }
-        if (retval.size() > 0)
+        if (retval.size() > 0) {
+            System.out.println("retval in getRawLogContainers() greater than zero");
             lastPoll = Instant.now();
+        }
+            
         return retval;
 
     }
@@ -71,15 +74,16 @@ class DB {
         if (infoRs.hasNext())
             logInfo = infoRs.next();
 
-        ArrayList<RawLog> retval = new ArrayList();
+        ArrayList<RawLog> retval = new ArrayList<>();
         Collection<String, RawLog> rawLogCol = store.getCollection(containerName, RawLog.class);
 
         Query<RawLog> query;
-        if (logInfo == null)
-            query = rawLogCol.query("select *");
-        else {
-            System.out.println("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ")");
-            query = rawLogCol.query("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ")");
+        if (logInfo == null) {
+            System.out.println("select * LIMIT 10000");
+            query = rawLogCol.query("select * LIMIT 10000");
+        } else {
+            System.out.println("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ") LIMIT 100000");
+            query = rawLogCol.query("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ") LIMIT 100000");
         }
 
         RowSet<RawLog> rs = query.fetch(false);

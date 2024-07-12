@@ -48,6 +48,9 @@ if [ "${1}" = 'griddb' ]; then
         gs_passwd $GRIDDB_USERNAME -p $GRIDDB_PASSWORD
         sed -i -e s/\"clusterName\":\"\"/\"clusterName\":\"$GRIDDB_CLUSTER_NAME\"/g \/var/lib/gridstore/conf/gs_cluster.json
 
+        echo "Changing Store Memory Limit"
+        sed -i -e 's/1024MB/2048MB/' \/var/lib/gridstore/conf/gs_node.json
+
         # MULTICAST mode
         if [ ! -z $NOTIFICATION_ADDRESS ]; then
             echo "MULTICAST mode address"

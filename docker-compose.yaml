@@ -1,5 +1,5 @@
-volumes:
- griddb:
+# volumes:
+#  griddb:
 
 services:
 
@@ -19,8 +19,8 @@ services:
     environment:
       NOTIFICATION_MEMBER: 1
       GRIDDB_CLUSTER_NAME: myCluster
-    volumes:
-      -  griddb:/var/lib/gridstore
+    # volumes:
+    #   -  griddb:/var/lib/gridstore
     healthcheck:
         test: ["CMD", "gs_sh"]
         interval: 30s
@@ -74,6 +74,8 @@ services:
       context: processor
       dockerfile: Dockerfile
     container_name: log-processor
+    volumes:
+    - ./data:/app/data
     depends_on:
       griddb-server:
         condition: service_healthy
