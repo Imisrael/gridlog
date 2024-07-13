@@ -1,9 +1,9 @@
 import sys
 import pandas as pd
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OrdinalEncoder
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn import preprocessing
+import traceback
+
 import numpy as np
 import json
 import datetime as dt
@@ -40,62 +40,44 @@ def create_df_of_sliding_windows(df_raw_log, df_microbeahaviors):
     print('Total DF Size ', len(df_microbeahaviors))
     return df_microbeahaviors
 
-def random_forest(clf, df_prediction):
-
-    df = df_prediction
+def random_forest(clf, df_proxy):
     try: 
-       # print(df.head())
-       # print(df['percentEncoded'])
-        
-        # for column in df_prediction.columns:
-        #     if df_prediction[column].dtype == type(object):
-        #         if (column == 'percentEncoded'):
-        #             df_prediction[column] = df_prediction[column].astype(bool)
-        #         elif (column == 'time_interval'):
-        #             df_prediction[column] = df_prediction[column].astype(float)
-        #         else:
-        #             print("else clause of obhect")
-        #             df_prediction[column] = df_prediction[column].astype(str)
-        #         le = LabelEncoder()
-
-        #         df[column] = le.fit_transform(df[column])
-        #         df_prediction[column] = le.fit_transform(df_prediction[column])
-
-        # nanColumns = df_prediction.columns[df_prediction.isnull().any()].tolist()
-
-        # for nanColumn in nanColumns:
-        #     df_prediction = df_prediction.drop(nanColumn, axis = 1)
-
+        df = df_proxy
+        print("==========DF COlumns========")
+        print(df.columns)
 
 
         for column in df.columns:
             if df[column].dtype == type(object):
                 try: 
-                    df[column] = df[column].astype(str)
-
-                    ordinal_encoder = OrdinalEncoder(handle_unknown='use_encoded_value',
-                                                    unknown_value=-1)
-                    df[column] = ordinal_encoder.fit_transform(df[column])
-                    print(df[column])
+                    le = preprocessing.LabelEncoder()
+                    df[column] = df[column].astype("string")
+                    le.fit(df[column])
+                    print("Second le classes")
+                    print(le.classes_)
+                    df[column] = le.transform(df[column])
                 except Exception as e:
-                    print("encoding failure")
-                    print(e)
+                    print(traceback.format_exc())
 
         nanColumns = df.columns[df.isnull().any()].tolist()
 
         for nanColumn in nanColumns:
             df = df.drop(nanColumn, axis = 1)
 
-
-    #    print(df.head())
         print("Running prediction")
         y_predict = clf.predict(df)
-        print("=====")
         print(y_predict)
+        # for index, row in df.iterrows():
+        #     print("Row")
+        #     print(row.values)
+        #     y_predict = clf.predict(row.values)
+        #     print("=====")
+        #     print(y_predict)
 
     except Exception as e: 
-        print(e)
         print("Failure")
+        print(e)
+        
 
 
 jsonStr = sys.argv[1]
@@ -116,11 +98,10 @@ with gzip.open(filepath, 'rb') as f:
     
     df_new_logs['timestamp'] = pd.to_datetime(df_new_logs['timestamp'], unit='ms')
     df_new_logs['epochTime'] = df_new_logs['timestamp']
-    print('epochtime')
    # print(df_new_logs['epochTime'])
     df_new_logs = df_new_logs.rename(columns={'timestamp':'dateTime'})
 
-    print(df_new_logs.head())
+   # print(df_new_logs.head())
     # print(df_new_logs.columns)
 
     try:
