@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
+
 import java.util.HashMap;
 
 import java.time.Instant;
@@ -29,13 +30,21 @@ class DB {
     }
 
     public void setOffset(String containerName, Date offset) throws GSException {
-        System.out.println("Setting " + containerName + " offset to " + offset);
-        Collection<String, RawLogInfo> col = store.putCollection("RAWLOG_reads", RawLogInfo.class);
-        RawLogInfo info = new RawLogInfo();
-        info.name = containerName;
-        info.timestamp = offset;
-        col.setAutoCommit(false);
-        col.put(info);
+
+        try {
+            System.out.println("Setting " + containerName + " offset to " + offset);
+            Collection<String, RawLogInfo> col = store.putCollection("RAWLOG_reads", RawLogInfo.class);
+            RawLogInfo info = new RawLogInfo();
+            info.name = containerName;
+            info.timestamp = offset;
+            col.setAutoCommit(false);
+            col.put(info);
+            col.commit();
+        } catch (Exception e) {
+            System.out.println("GridDB not writing offset");
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -79,11 +88,11 @@ class DB {
 
         Query<RawLog> query;
         if (logInfo == null) {
-            System.out.println("select * LIMIT 10000");
-            query = rawLogCol.query("select * LIMIT 10000");
+            System.out.println("select *");
+            query = rawLogCol.query("select *");
         } else {
-            System.out.println("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ") LIMIT 100000");
-            query = rawLogCol.query("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ") LIMIT 100000");
+            System.out.println("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ")");
+            query = rawLogCol.query("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ")");
         }
 
         RowSet<RawLog> rs = query.fetch(false);

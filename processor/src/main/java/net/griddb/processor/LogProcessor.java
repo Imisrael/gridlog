@@ -110,7 +110,7 @@ public class LogProcessor {
         String[] schemaArr = config.schema;
         ContainerInfo info = logRow.getSchema();
         int n = info.getColumnCount();
-        
+
         int j = 0;
         for (int i = 0; i < n; i++) {
             Object val = logRow.getValue(i);
@@ -148,42 +148,49 @@ public class LogProcessor {
 
                         if (row != null) {
                             proc_logs.add(row);
-                       //     System.out.println("parsing this row: " + row);
-                            String jsonStr = lp.convertToJson(row, configs.get(log.logtype));
-                            if (!(jsonStr.isEmpty())) {
-                                list_of_json.add(jsonStr);
+                            // System.out.println("parsing this row: " + row);
+                            if (proc_container == "LOG_agent_http") {
+                                String jsonStr = lp.convertToJson(row, configs.get(log.logtype));
+                                if (!(jsonStr.isEmpty())) {
+                                    list_of_json.add(jsonStr);
+                                }
                             }
+
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                         System.out.println("Could not parse " + log);
                     }
                 }
-                try {
-                    if (list_of_json.size() > 0) {
-                        String arg = String.join("|", list_of_json);
-                        Process process = new ProcessBuilder("/app/python/venv/bin/python3.12", "/app/python/inference.py", arg)
-                                .start();
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                        BufferedReader eReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                        StringBuilder builder = new StringBuilder();
-                        String line = null;
-                        while ((line = reader.readLine()) != null) {
-                            builder.append(line);
-                            builder.append(System.getProperty("line.separator"));
+                if (proc_container == "LOG_agent_http") {
+                    try {
+                        if (list_of_json.size() > 0) {
+                            String arg = String.join("|", list_of_json);
+                            Process process = new ProcessBuilder("/app/python/venv/bin/python3.12",
+                                    "/app/python/inference.py", arg)
+                                    .start();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                            BufferedReader eReader = new BufferedReader(
+                                    new InputStreamReader(process.getErrorStream()));
+                            StringBuilder builder = new StringBuilder();
+                            String line = null;
+                            while ((line = reader.readLine()) != null) {
+                                builder.append(line);
+                                builder.append(System.getProperty("line.separator"));
+                            }
+                            while ((line = eReader.readLine()) != null) {
+                                builder.append(line);
+                                builder.append(System.getProperty("line.separator"));
+                            }
+                            String result = builder.toString();
+                            System.out.println(result);
                         }
-                        while ((line = eReader.readLine()) != null) {
-                            builder.append(line);
-                            builder.append(System.getProperty("line.separator"));
-                        }
-                        String result = builder.toString();
-                        System.out.println(result);
-                    }
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
- 
+
                 containerRowsMap.put(proc_container, proc_logs);
 
             }
