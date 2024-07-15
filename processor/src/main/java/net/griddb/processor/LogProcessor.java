@@ -149,7 +149,7 @@ public class LogProcessor {
                         if (row != null) {
                             proc_logs.add(row);
                             // System.out.println("parsing this row: " + row);
-                            if (proc_container == "LOG_agent_http") {
+                            if (proc_container.equals( "LOG_agent_http")) {
                                 String jsonStr = lp.convertToJson(row, configs.get(log.logtype));
                                 if (!(jsonStr.isEmpty())) {
                                     list_of_json.add(jsonStr);
@@ -162,7 +162,7 @@ public class LogProcessor {
                         System.out.println("Could not parse " + log);
                     }
                 }
-                if (proc_container == "LOG_agent_http") {
+                if (proc_container.equals( "LOG_agent_http")) {
                     try {
                         if (list_of_json.size() > 0) {
                             String arg = String.join("|", list_of_json);

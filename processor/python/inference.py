@@ -27,24 +27,19 @@ def create_df_of_sliding_windows(df_raw_log, df_microbeahaviors):
 
             # use the micro behavior api to extract the stats as a dict
             dict_mb = ex.HTTPMicroBehaviors.behaviorVector(df_raw_log_window)
-            # for key in dict_mb:
-            #     print("~~~~~~~~~~~")
-            #     print(key )
-            #     print( dict_mb[key])
-            #     print(type(dict_mb[key]))
 
             # convert each dict (window) to a dataframe and add to our global variable
             df_from_dict = pd.DataFrame([dict_mb], columns=dict_mb.keys())
             df_microbeahaviors = pd.concat([df_from_dict, df_microbeahaviors],ignore_index=True)
           #  print('Current DF Size ', len(df_microbeahaviors))
-    print('Total DF Size ', len(df_microbeahaviors))
+   # print('Total DF Size ', len(df_microbeahaviors))
     return df_microbeahaviors
 
 def random_forest(clf, df_proxy):
     try: 
         df = df_proxy
-        print("==========DF COlumns========")
-        print(df.columns)
+        # print("==========DF COlumns========")
+        # print(df.columns)
 
 
         for column in df.columns:
@@ -53,8 +48,8 @@ def random_forest(clf, df_proxy):
                     le = preprocessing.LabelEncoder()
                     df[column] = df[column].astype("string")
                     le.fit(df[column])
-                    print("Second le classes")
-                    print(le.classes_)
+                    # print("Second le classes")
+                    # print(le.classes_)
                     df[column] = le.transform(df[column])
                 except Exception as e:
                     print(traceback.format_exc())
@@ -64,7 +59,7 @@ def random_forest(clf, df_proxy):
         for nanColumn in nanColumns:
             df = df.drop(nanColumn, axis = 1)
 
-        print("Running prediction")
+        # print("Running prediction")
         y_predict = clf.predict(df)
         print(y_predict)
         # for index, row in df.iterrows():
