@@ -152,6 +152,8 @@ public class LogProcessor {
                             if (proc_container.equals( "LOG_agent_http")) {
                                 String jsonStr = lp.convertToJson(row, configs.get(log.logtype));
                                 if (!(jsonStr.isEmpty())) {
+                                    // System.out.println("adding to JsonStr");
+                                    // System.out.println(jsonStr);
                                     list_of_json.add(jsonStr);
                                 }
                             }
@@ -166,24 +168,44 @@ public class LogProcessor {
                     try {
                         if (list_of_json.size() > 0) {
                             String arg = String.join("|", list_of_json);
+                            System.out.println("arg: " + arg);
                             Process process = new ProcessBuilder("/app/python/venv/bin/python3.12",
                                     "/app/python/inference.py", arg)
                                     .start();
                             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                            BufferedReader eReader = new BufferedReader(
-                                    new InputStreamReader(process.getErrorStream()));
                             StringBuilder builder = new StringBuilder();
                             String line = null;
                             while ((line = reader.readLine()) != null) {
                                 builder.append(line);
-                                builder.append(System.getProperty("line.separator"));
+                                // builder.append(System.getProperty("line.separator"));
                             }
-                            while ((line = eReader.readLine()) != null) {
-                                builder.append(line);
-                                builder.append(System.getProperty("line.separator"));
-                            }
+    
                             String result = builder.toString();
-                            System.out.println(result);
+                            if (!(result.contains("Failure")) && result.length() > 0) {
+                                String filtered = result.replaceAll("[^0-9,]",",");
+                                String[] numbers = filtered.split(",");
+                                int itr = 0;
+                                for (String st : numbers) {
+                                    if (!(st.isEmpty() )) {
+                                        System.out.println("St: "+ st);
+                                    }
+                                }
+
+                                int k = 0;
+                                for (Row log : proc_logs) {
+                                    if (!(numbers[k].isEmpty())) {
+                                        System.out.println(Integer.parseInt(numbers[k]));
+                                        log.setBool(26, Integer.parseInt(numbers[k]) == 1);
+                                        log.setString(27, "Inferred");
+                                        System.out.println("Setting row to Inferred");
+                                        
+                                    }
+                                    k++;
+                                }
+                            } else {
+                                System.out.println("failing result: " + result);
+                            }
+
                         }
 
                     } catch (Exception e) {

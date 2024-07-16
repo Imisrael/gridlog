@@ -10,7 +10,6 @@ import datetime as dt
 import gzip, pickle
 import aktaion.microbehavior_core as ex
 
-window_len = 5
 df_prediction = pd.DataFrame()
 
 pd.set_option('display.max_columns', None)
@@ -20,18 +19,15 @@ pd.set_option('display.max_rows', None)
 def create_df_of_sliding_windows(df_raw_log, df_microbeahaviors):
     # use for determining upper bound in number of sliding windows we create
     df_len = len(df_raw_log)
-    if df_len > window_len:
-        for i in range(0, df_len - window_len):
-            # create sliding window which outputs another dataframe
-            df_raw_log_window = df_raw_log[i:i + window_len]
 
-            # use the micro behavior api to extract the stats as a dict
-            dict_mb = ex.HTTPMicroBehaviors.behaviorVector(df_raw_log_window)
+    for i in range(0, df_len):
+        # use the micro behavior api to extract the stats as a dict
+        dict_mb = ex.HTTPMicroBehaviors.behaviorVector(df_raw_log)
 
-            # convert each dict (window) to a dataframe and add to our global variable
-            df_from_dict = pd.DataFrame([dict_mb], columns=dict_mb.keys())
-            df_microbeahaviors = pd.concat([df_from_dict, df_microbeahaviors],ignore_index=True)
-          #  print('Current DF Size ', len(df_microbeahaviors))
+        # convert each dict (window) to a dataframe and add to our global variable
+        df_from_dict = pd.DataFrame([dict_mb], columns=dict_mb.keys())
+        df_microbeahaviors = pd.concat([df_from_dict, df_microbeahaviors],ignore_index=True)
+        #print('Current DF Size ', len(df_microbeahaviors))
    # print('Total DF Size ', len(df_microbeahaviors))
     return df_microbeahaviors
 
@@ -59,15 +55,9 @@ def random_forest(clf, df_proxy):
         for nanColumn in nanColumns:
             df = df.drop(nanColumn, axis = 1)
 
-        # print("Running prediction")
         y_predict = clf.predict(df)
+        # print("running prediction")
         print(y_predict)
-        # for index, row in df.iterrows():
-        #     print("Row")
-        #     print(row.values)
-        #     y_predict = clf.predict(row.values)
-        #     print("=====")
-        #     print(y_predict)
 
     except Exception as e: 
         print("Failure")
@@ -77,13 +67,13 @@ def random_forest(clf, df_proxy):
 
 jsonStr = sys.argv[1]
 list = jsonStr.split('|')
-#print(jsonStr)
 jsonList = []
 for str in list:
     js = json.loads(str)
     jsonList.append(js)
 
 df_new_logs = pd.json_normalize(jsonList)
+
 
 filepath = "/app/data/random_forest.pkl"
 with gzip.open(filepath, 'rb') as f:
