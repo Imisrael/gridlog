@@ -118,12 +118,12 @@ class GridDBWriter {
             cn = getContainerName(hostname, logtype);
         }
 
-       // System.out.println("Writing to GridDB: " + "Container Name: " + cn + " value: " + value.length());
+        System.out.println("Writing to GridDB: " + "Container Name: " + cn + " value: " + value.length());
 
         RequestBody body = RequestBody.create(value, JSON);
 
         if (value.length() > 10000) {
-
+            System.out.println("Skipping, value length is way too long: (" + String.valueOf(value.length()) + " )");
         } else {
             Request request = new Request.Builder()
                     .url(griddbURL + "/griddb/v2/myCluster/dbs/public/containers/" + cn + "/rows")

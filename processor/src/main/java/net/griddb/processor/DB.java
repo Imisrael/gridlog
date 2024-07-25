@@ -45,7 +45,6 @@ class DB {
             e.printStackTrace();
         }
 
-
     }
 
     public ArrayList<String> getRawLogContainers() throws GSException {
@@ -54,46 +53,62 @@ class DB {
 
         Query<RawLogInfo> query;
 
-        if (lastPoll == null)
-            query = col.query("select *");
-        else {
-           // System.out.println("select * where timestamp >= TO_TIMESTAMP_MS(" + lastPoll + ")");
-            query = col.query("select * where timestamp >= TO_TIMESTAMP_MS(" + lastPoll.toEpochMilli() + ")");
+        if (col != null) {
+            if (lastPoll == null)
+                query = col.query("select *");
+            else {
+                // System.out.println("select * where timestamp >= TO_TIMESTAMP_MS(" + lastPoll
+                // + ")");
+                query = col.query("select * where timestamp >= TO_TIMESTAMP_MS(" + lastPoll.toEpochMilli() + ")");
+            }
+            RowSet<RawLogInfo> rs = query.fetch(false);
+            while (rs.hasNext()) {
+                retval.add(rs.next().name);
+            }
+            if (retval.size() > 0) {
+                System.out.println("retval in getRawLogContainers() greater than zero");
+                lastPoll = Instant.now();
+            }
+
+            return retval;
+        } else {
+            System.out.println("RAWLOG_Writes not created yet");
+            return retval;
         }
-        RowSet<RawLogInfo> rs = query.fetch(false);
-        while (rs.hasNext()) {
-            retval.add(rs.next().name);
-        }
-        if (retval.size() > 0) {
-            System.out.println("retval in getRawLogContainers() greater than zero");
-            lastPoll = Instant.now();
-        }
-            
-        return retval;
 
     }
 
     public ArrayList<RawLog> getNewLogs(String containerName, Date after) throws GSException {
 
         Collection<String, RawLogInfo> rawLogInfo = store.putCollection("RAWLOG_reads", RawLogInfo.class);
-        Query<RawLogInfo> infoQuery = rawLogInfo.query("select * where name=\'" + containerName + "\'");
-        RowSet<RawLogInfo> infoRs = infoQuery.fetch(false);
-
         RawLogInfo logInfo = null;
-        if (infoRs.hasNext())
-            logInfo = infoRs.next();
+        if (rawLogInfo != null) {
+            Query<RawLogInfo> infoQuery = rawLogInfo.query("select * where name=\'" + containerName + "\'");
+            RowSet<RawLogInfo> infoRs = infoQuery.fetch(false);
+    
+            
+            if (infoRs.hasNext())
+                logInfo = infoRs.next();
+        } else {
+            return new ArrayList<RawLog>();
+        }
+
 
         ArrayList<RawLog> retval = new ArrayList<>();
         Collection<String, RawLog> rawLogCol = store.getCollection(containerName, RawLog.class);
 
         Query<RawLog> query;
-        if (logInfo == null) {
-            System.out.println("select *");
-            query = rawLogCol.query("select *");
+        if (rawLogCol != null) {
+            if (logInfo == null) {
+                query = rawLogCol.query("select *");
+            } else {
+                System.out.println("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ")");
+                query = rawLogCol.query("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ")");
+            }
         } else {
-            System.out.println("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ")");
-            query = rawLogCol.query("select * where ts > TO_TIMESTAMP_MS(" + logInfo.timestamp.getTime() + ")");
+            return new ArrayList<RawLog>();
         }
+
 
         RowSet<RawLog> rs = query.fetch(false);
 
@@ -111,18 +126,25 @@ class DB {
 
         try {
             Collection<String, ConfigInfo> col = store.getCollection("configs", ConfigInfo.class);
-            Query<ConfigInfo> query;
-            query = col.query("select *");
+            if (col != null) {
+                Query<ConfigInfo> query;
+                query = col.query("select *");
 
-            RowSet<ConfigInfo> rs = query.fetch(false);
-            while (rs.hasNext()) {
-                ConfigInfo row = rs.next();
-                String keyName = row.logtype;
-                retval.put(keyName, row);
+                RowSet<ConfigInfo> rs = query.fetch(false);
+                while (rs.hasNext()) {
+                    ConfigInfo row = rs.next();
+                    String keyName = row.logtype;
+                    retval.put(keyName, row);
+                }
+            } else {
+                System.out.println("Configs not made yet");
+                return retval;
             }
-        } catch (Exception e) {
+
+        } catch (GSException gse) {
             System.out.println("issue querying Configs container");
-            e.printStackTrace();
+            gse.getMessage();
+            return retval;
         }
 
         return retval;

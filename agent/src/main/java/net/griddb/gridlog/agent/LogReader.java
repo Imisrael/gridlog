@@ -4,9 +4,9 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.time.*;
+import java.nio.file.*;
 
 import net.griddb.gridlog.agent.LogsConfig; 
-
 
 // String type;
 // String path;
@@ -39,6 +39,7 @@ class LogReader extends Thread {
     public static String getContainerName (String hostname, String logtype) {
         return "RAWLOG_" + hostname + "_" +logtype;
     }
+
     
     private static void monitorFile(
         File file, String hostname, 
@@ -51,8 +52,7 @@ class LogReader extends Thread {
         ArrayList<HashMap<String, String>> containerSchema
         ) throws IOException {
         System.out.println("Monitoring new file: " + logtype + " " + "path " + path);
-        FileReader reader = new FileReader(file);
-        BufferedReader buffered = new BufferedReader(reader);
+        BufferedReader buffered = new BufferedReader(new FileReader(file));
         GridDBWriter gWriter = new GridDBWriter(hostname, logtype, path, griddbURL);
         String cn = getContainerName(hostname, logtype);
         gridDB.createRAWLOGContainer(cn, expiration_time.toString(), part_unit); // creates container for specific logs
@@ -74,13 +74,12 @@ class LogReader extends Thread {
         int i = 1;
         try {
             while(true) {
-                String line = buffered.readLine();              
+                String line = buffered.readLine();      
                 if( (line == null) || (i % 10 == 0))  {
                     // end of file, start polling
                     Thread.sleep(interval);
                     str.setLength(str.length() - 1); //remove last comma
                     str.append("]");
-
                     if (str.length() > 1) { // will continue to try to write ']' without this check
                         gWriter.writeLog(str.toString(), "rawlog");
                         
