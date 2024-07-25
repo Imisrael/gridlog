@@ -210,15 +210,15 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       <FormProvider {...methods}>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <input type="text" placeholder="logtype" {...register("logtype", { required: true, validate: (value) => validateUniqueKeyName(value) })} />
-          <input type="text" placeholder="regex_format" {...register("regex_format", { required: true })} />
-          <input type="number" placeholder="timestamp position" {...register("timestamp_position", { required: true })} />
-          <input type="text" placeholder="entry sample" {...register("entry_sample", { required: true })} />
-          <input type="text" placeholder="timestamp format" {...register("timestamp_format", { required: true })} />
-          <input type="text" placeholder="file path" {...register("file_path", { required: true })} />
-          <input type="number" placeholder="interval" {...register("interval", { required: true })} />
-          <input type="number" placeholder="expiration time" {...register("expiration_time", { required: true })} />
-          <input type="text" placeholder="partition unit" {...register("partition_unit", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="logtype" {...register("logtype", { required: true, validate: (value) => validateUniqueKeyName(value) })} />
+          <input className="mb-5 rounded" type="text" placeholder="regex_format" {...register("regex_format", { required: true })} />
+          <input className="mb-5 rounded" type="number" placeholder="timestamp position" {...register("timestamp_position", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="entry sample" {...register("entry_sample", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="timestamp format" {...register("timestamp_format", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="file path" {...register("file_path", { required: true })} />
+          <input className="mb-5 rounded" type="number" placeholder="interval" {...register("interval", { required: true })} />
+          <input className="mb-5 rounded" type="number" placeholder="expiration time" {...register("expiration_time", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="partition unit" {...register("partition_unit", { required: true })} />
           {schemaRows.map(row => (
             <SelectForm
               key={row.idx}
@@ -236,7 +236,12 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
 
           {errors.logtype && <p> Sorry, it looks like this keyName (logtype) is already being tracked and used!</p>}
           {errors.schema && <p> The schema field requires a format of `name,type` with no spaces (for example: hostname,string,logtype,string,timestamp,timestamp)</p>}
-          <input type="submit" />
+          <input 
+            className="rounded-lg shadow-md text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium text-lg px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800" 
+            type="submit" 
+          />
+
+          
         </form>
       </FormProvider>
     </>

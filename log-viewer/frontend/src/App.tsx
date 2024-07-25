@@ -23,6 +23,7 @@ import Sidebar from './components/Sidebar.tsx';
 import QueryBuilder from './components/QueryBuilder.tsx';
 import Chart from './components/Chart';
 import DataTableAgg from './components/DataTableAgg';
+import ConfigModal from './components/ConfigModal.tsx';
 
 import { Tabs } from 'flowbite-react';
 
@@ -35,6 +36,7 @@ const App = () => {
   const [LogTypes, setLogTypes] = React.useState([]);
   const [Hostnames, setHostnames] = React.useState([]);
   const [userLimit, setUserLimit] = React.useState(100);
+  const [openModal, setOpenModal] = React.useState(false);
 
 
   React.useEffect(() => { document.body.style.backgroundColor = 'rgb(226 232 240)' }, [])
@@ -45,16 +47,21 @@ const App = () => {
       .then(res => res.json())
       .then(
         (result) => {
-          const arrLogTypes = ["none"];
-          const arrHostnames = ["none"];
-          result.forEach((container: string) => {
-            arrLogTypes.push(extractLogType(container))
-            arrHostnames.push(extractHostname(container))
-          })
-          const uniqueHostnames = [...new Set(arrHostnames)];
-          const uniqueLogTypes = [...new Set(arrLogTypes)]
-          setHostnames(uniqueHostnames);
-          setLogTypes(uniqueLogTypes)
+          if (result.length > 0) {
+            const arrLogTypes = ["none"];
+            const arrHostnames = ["none"];
+            result.forEach((container: string) => {
+              arrLogTypes.push(extractLogType(container))
+              arrHostnames.push(extractHostname(container))
+            })
+            const uniqueHostnames = [...new Set(arrHostnames)];
+            const uniqueLogTypes = [...new Set(arrLogTypes)]
+            setHostnames(uniqueHostnames);
+            setLogTypes(uniqueLogTypes)
+          } else {
+            setOpenModal(true);
+          }
+
 
         },
         (error) => {
@@ -92,7 +99,7 @@ const App = () => {
           let schemaNames = keys.filter(word => word.includes("schema"));
           // populating the schemas obj with the data
           schemaNames.forEach(s => schemas[s] = result[s])
-          
+
           const listOfHeaderNames = generateColumns(schemas);
           setHeaderNames(listOfHeaderNames);
 
@@ -337,7 +344,9 @@ const App = () => {
             <Sidebar logTypes={LogTypes} hostnames={Hostnames} />
           </div>
 
-        {/* Home View */}
+          < ConfigModal openModal={openModal} setOpenModal={setOpenModal} />
+
+          {/* Home View */}
           <div className='flex'>
             <Tabs style="fullWidth">
               <Tabs.Item active title="Home">
@@ -349,7 +358,6 @@ const App = () => {
                     {tables}
                   </div>
                 </div>
-              <h1><Link to="config" > Config Page</Link></h1>
               </Tabs.Item>
 
 

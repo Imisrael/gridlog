@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ReactSelect from 'react-select';
-import { Button } from 'semantic-ui-react';
+import { Button } from "flowbite-react";
+import { FaPlus, FaMinus } from "react-icons/fa";
 import { Controller, Control, FieldValues } from "react-hook-form";
 
 
@@ -68,13 +69,13 @@ export default function SelectForm(props:
   }
 
   const handleInputChange = ( value) => {
-    console.log("input changed: ", value)
- //   setInputColType(value.value)
+   // console.log("input changed: ", value)
+    setInputColType(value)
   }
 
   const handleInputNameChange = (event) => {
-    console.log("input changed: ",  event.target)
-    //setInputColName(value)
+    //console.log("input changed: ",  event.target)
+    setInputColName(event.target.value)
   }
 
 
@@ -116,21 +117,26 @@ export default function SelectForm(props:
           />
         </div>
         <div className="w-1/3">
-          <Button
+        <Button.Group outline>
+        <Button
             type="button"
-            icon='plus'
             className="addButton"
             style={{ right: "-15px" }}
             onClick={handleAdd}
-          />
+          > 
+            <FaPlus />
+          </Button>
           <Button
             type="button"
-            icon='minus'
             className="removeButton"
-            style={{ right: "-35px" }}
+            style={{ right: "-15px" }}
             disabled={numOfSchemaRows === 1 ? true : false}
             onClick={handleRemove}
-          />
+          > 
+          <FaMinus />
+          </Button>
+        </Button.Group>
+
         </div>
       </div>
 

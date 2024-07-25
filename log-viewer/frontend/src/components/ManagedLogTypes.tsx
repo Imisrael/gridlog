@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { NewLogEntryInputs } from '../utils/types';
 
+import { Button } from "flowbite-react";
+
 export default function ManagedLogTypes(props:
   {
     setExampleLogEntry: React.Dispatch<React.SetStateAction<NewLogEntryInputs>>;
@@ -21,11 +23,11 @@ export default function ManagedLogTypes(props:
     partition_unit: 'DAY',
     schemaArr: ["timestamp,timestamp,hostname,string,log,string"],
     schema: {
-      columnNames: ['timestamp','hostname','log'],
+      columnNames: ['timestamp', 'hostname', 'log'],
       columnTypes: [
-        {value: 'timestamp'},
-        {value: 'string'},
-        {value: 'string'}
+        { value: 'timestamp' },
+        { value: 'string' },
+        { value: 'string' }
       ]
     }
   }
@@ -43,18 +45,18 @@ export default function ManagedLogTypes(props:
     partition_unit: 'DAY',
     schemaArr: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"],
     schema: {
-      columnNames: ['timestamp','statusCode','httpMethod', 'httpProtocol', 'hostname', 'requestedURL', 'clientIP', 'contentLength', 'gzip', 'userAgent'],
+      columnNames: ['timestamp', 'statusCode', 'httpMethod', 'httpProtocol', 'hostname', 'requestedURL', 'clientIP', 'contentLength', 'gzip', 'userAgent'],
       columnTypes: [
-        {value: 'timestamp'},
-        {value: 'integer'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'integer'},
-        {value: 'string'},
-        {value: 'string'}
+        { value: 'timestamp' },
+        { value: 'integer' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'integer' },
+        { value: 'string' },
+        { value: 'string' }
       ]
     }
   }
@@ -102,34 +104,34 @@ export default function ManagedLogTypes(props:
         'labelType',
       ],
       columnTypes: [
-        {value: 'timestamp'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'integer'},
-        {value: 'integer'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'integer'},
-        {value: 'integer'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'bool'},
-        {value: 'string'},
+        { value: 'timestamp' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'integer' },
+        { value: 'integer' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'integer' },
+        { value: 'integer' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'bool' },
+        { value: 'string' },
       ]
     }
   }
@@ -145,26 +147,31 @@ export default function ManagedLogTypes(props:
     }
 
   }
-  const buttonStyle= "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
 
   return (
-    <>
-      <button className={buttonStyle}
-        data-logtype="tests"
-        onClick={buttonHandler}
-      >
-        Tests
-      </button>
-      <button className={buttonStyle}
-        data-logtype="server"
-        onClick={buttonHandler}
-      >
-        Server</button>
-        <button className={buttonStyle}
-        data-logtype="intrusion"
-        onClick={buttonHandler}
-      >
-        Intrusion</button>
-    </>
+      <Button.Group outline>
+        <Button
+          color="gray"
+          data-logtype="tests"
+          onClick={buttonHandler}
+        >
+          Tests
+        </Button>
+        <Button
+          color="gray"
+          data-logtype="server"
+          onClick={buttonHandler}
+        >
+          Server Logs
+        </Button>
+        <Button
+          color="gray"
+          data-logtype="intrusion"
+          onClick={buttonHandler}
+        >
+          Intrusion Detection
+        </Button>
+      </Button.Group>
+
   )
 }
