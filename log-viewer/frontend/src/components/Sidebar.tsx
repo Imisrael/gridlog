@@ -80,8 +80,8 @@ export default function Sidebar(props: any) {
             </li>
 
           </ul>
-          <div className='absolute bottom-2 left-4 cursor-pointer'>
-            <CiSettings className='h-8 w-8 ' onClick={() => navigate("config")} />
+          <div className='absolute bottom-2 left-6 cursor-pointer hover:bg-gray-300'>
+            <CiSettings className='h-10 w-10 ' onClick={() => navigate("config")} />
             <p
               className="text-base leading-relaxed text-gray-800 dark:text-gray-400"
               onClick={() => navigate("config")}>

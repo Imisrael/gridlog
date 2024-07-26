@@ -9,7 +9,11 @@ const initialRows = [
   { idx: 1, numOfRows: 1, high: 1, value: [] },
 ]
 
-export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, keyNames: string[] }) {
+export default function ConfigForm(props: { 
+  exampleLogEntry: NewLogEntryInputs, 
+  keyNames: string[],
+  disableAddRemove: boolean
+}) {
 
   const {
     register,
@@ -24,7 +28,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
 
   const [submittedData, setSubmittedData] = React.useState({});
 
-  const { exampleLogEntry, keyNames } = props;
+  const { exampleLogEntry, keyNames, disableAddRemove } = props;
 
   function validateUniqueKeyName(key: string) {
     if (keyNames.length > 0 && keyNames !== null) {
@@ -169,7 +173,10 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
           result => {
             setSubmittedData(result)
             console.log("result", result)
-          }
+            if (result < 300) 
+              alert("Successfully Submitted")
+            else 
+              alert("There was an issue submitted your config. Please try again")          }
 
         )
     }
@@ -211,9 +218,9 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <input className="mb-5 rounded" type="text" placeholder="logtype" {...register("logtype", { required: true, validate: (value) => validateUniqueKeyName(value) })} />
-          <input className="mb-5 rounded" type="text" placeholder="regex_format" {...register("regex_format", { required: true })} />
+          <textarea className="mb-5 rounded" placeholder="regex_format" {...register("regex_format", { required: true })} />
           <input className="mb-5 rounded" type="number" placeholder="timestamp position" {...register("timestamp_position", { required: true })} />
-          <input className="mb-5 rounded" type="text" placeholder="entry sample" {...register("entry_sample", { required: true })} />
+          <textarea className="mb-5 rounded" placeholder="entry sample" {...register("entry_sample", { required: true })} />
           <input className="mb-5 rounded" type="text" placeholder="timestamp format" {...register("timestamp_format", { required: true })} />
           <input className="mb-5 rounded" type="text" placeholder="file path" {...register("file_path", { required: true })} />
           <input className="mb-5 rounded" type="number" placeholder="interval" {...register("interval", { required: true })} />
@@ -230,6 +237,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
               numOfSchemaRows={numOfSchemaRows}
               lastRow={lastRow}
               rowsUpdated={rowsUpdated}
+              disableAddRemove={disableAddRemove}
             />
           ))}
 

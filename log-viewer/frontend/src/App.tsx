@@ -33,8 +33,8 @@ const App = () => {
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(true);
   const [logData, setLogData] = React.useState(null);
-  const [LogTypes, setLogTypes] = React.useState([]);
-  const [Hostnames, setHostnames] = React.useState([]);
+  const [LogTypes, setLogTypes] = React.useState(["none"]);
+  const [Hostnames, setHostnames] = React.useState(["none"]);
   const [userLimit, setUserLimit] = React.useState(100);
   const [openModal, setOpenModal] = React.useState(false);
 
@@ -75,21 +75,45 @@ const App = () => {
   const [containersToBeShown, setContainersToBeShown] = React.useState([]);
   const [progressPending, setProgressPending] = React.useState(true);
 
-  const queryGridDB = (hostname, logtype, range) => {
+  const minTime = async (hostname: string, logType: string): Promise<string> => {
+    const containerName = "LOG_" + hostname + "_" + logType;
+    const addr = `${HOST}minTimestamp?containerName=${containerName}`
+    const time = fetch(addr)
+      .then(res => res.text())
+      .then(text => text)
+      
+      return time;
+  }
+
+  const queryGridDB = async (
+    hostname: string,
+    logType: string,
+    range: { start?: Date; end: Date; }
+  ) => {
     setProgressPending(true);
-    let start = range.start.valueOf();
+    let start;
+    if (!hostname.includes("none") && !logType.includes("none")) {
+      const earliestTime: string = await minTime(hostname, logType);
+      const dateTime = new Date(earliestTime).getTime();
+      console.log("Datetime: ", dateTime);
+      start = dateTime;
+    } else {
+      start = range.start.valueOf();
+    }
+
+
     console.log("start: ", start)
     let end = range.end.valueOf();
 
     // if both Logype and Hostname are still none, do not fetch
-    let queryStr = `${HOST}containersWithParameters?hostname=${hostname}&logtype=${logtype}&start=${start}&end=${end}`
+    let queryStr = `${HOST}containersWithParameters?hostname=${hostname}&logType=${logType}&start=${start}&end=${end}`
     console.log(queryStr)
 
     fetch(queryStr)
       .then(res => res.json())
       .then(
         (result) => {
-          console.log("results of getting hostname or logtypes: ", result)
+          console.log("results of getting hostname or logTypes: ", result)
 
           const keys = Object.keys(result);
           //   let contNames = keys.filter(word => word.includes("arr") && !word.includes("schema"));
@@ -140,12 +164,12 @@ const App = () => {
   const [tables, setTables] = React.useState(null);
   React.useEffect(() => {
     if (containersToBeShown.length > 0) {
-      const tables = containersToBeShown.map(logtype =>
+      const tables = containersToBeShown.map(logType =>
 
         < DataTableNonAgg
-          columns={headerNames[logtype]}
-          data={logData[logtype]}
-          title={logtype}
+          columns={headerNames[logType]}
+          data={logData[logType]}
+          title={logType}
           progressPending={progressPending}
         />
 
@@ -260,7 +284,7 @@ const App = () => {
     }
     t[idx] = {
       "containerName": containerName,
-      "logtype": col,
+      "logType": col,
       "operator": oper,
       "value": val,
       "valuetype": columnType,

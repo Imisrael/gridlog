@@ -64,7 +64,6 @@ public class GridDB {
         List<String> listOfContainerNames = new ArrayList<String>();
         try {
             Statement stmt = con.createStatement();
-
             ResultSet rs = stmt.executeQuery("SELECT DISTINCT name from RAWLOG_writes;");
 
             while (rs.next()) {
@@ -80,6 +79,21 @@ public class GridDB {
         }
 
         return listOfContainerNames;
+    }
+
+    public String getMinTimestamp(String containerName) {
+        StringBuilder time = new StringBuilder();
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT MIN(timestamp) from " + containerName);
+            while(rs.next())
+                time.append(rs.getString(1));
+        } catch (Exception e) {
+            System.out.println("Error getting the min time for " + containerName);
+            e.printStackTrace();
+        }
+        System.out.println("Min time: " + time.toString());
+        return time.toString();
     }
 
     public List<String> getContainerNamesWithParameters(String hostname, String logtype) {
@@ -124,10 +138,8 @@ public class GridDB {
         String logtype) {
 
     HashMap<String, List<?>> retval = new HashMap<>();
-    
-  //  ConfigParser configParser = new ConfigParser();
-  //  configParser.parseConfig("conf/config.json");
 
+    // create schema portion of hashmap to be returned to frontend
     for (String cont : listOfContainers) {
         String contName = cont.replaceAll("RAWLOG", "LOG");
         String[] arr = cont.split("_", 3);
@@ -138,14 +150,11 @@ public class GridDB {
             System.out.println("printing out schema arr");
             System.out.println(s);
         }
-        
 
-    //    ArrayList<HashMap<String, String>> temp = configParser.rules.get(logType).schema;
         retval.put("schema_" + contName, schema);
     }
 
     try {
-
         for (String container : listOfContainers) {
             String cont = container.replaceAll("RAWLOG", "LOG");
             String queryStr = ("SELECT * FROM " + cont
@@ -160,13 +169,9 @@ public class GridDB {
 
             ResultSetMetaData rsmd = rs.getMetaData();
             int n = rsmd.getColumnCount();
+
             List<HashMap<String, ?>> results = new ArrayList<>();
-
             List<List<Object>> listOfLists = new ArrayList<List<Object>>();
-
-            // String temp_log_type = "";
-            // String[] arr = cont.split("_", 3);
-            // temp_log_type = arr[2];
 
             while (rs.next()) {
                 HashMap<String, Object> values = new HashMap<>();

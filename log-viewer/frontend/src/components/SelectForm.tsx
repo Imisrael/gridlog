@@ -22,6 +22,7 @@ export default function SelectForm(props:
     lastRow: number;
     value?: string[];
     rowsUpdated: boolean
+    disableAddRemove: boolean
  //   setValue;
   }
 ) {
@@ -33,8 +34,11 @@ export default function SelectForm(props:
     numOfSchemaRows,
     value,
     rowsUpdated,
+    disableAddRemove,
 //    setValue,
   } = props;
+
+  console.log("disable add remove: ", disableAddRemove);
 
   const [inputColName, setInputColName] = React.useState("column name");
   const [inputColType, setInputColType] = React.useState({ value: 'type', label: 'Column Type' });
@@ -107,6 +111,13 @@ export default function SelectForm(props:
             render={({ field }) => (
               <ReactSelect
                 isClearable
+                styles={{
+                  input: (baseStyles) => ({
+                    ...baseStyles,
+                    padding: 0,
+                    margin: 0
+                  }),
+                }}
                 placeholder="column type"
                 {...field}
                 options={options}
@@ -117,12 +128,13 @@ export default function SelectForm(props:
           />
         </div>
         <div className="w-1/3">
-        <Button.Group outline>
+        <Button.Group outline aria-disabled>
         <Button
             type="button"
             className="addButton"
             style={{ right: "-15px" }}
             onClick={handleAdd}
+            disabled={disableAddRemove}
           > 
             <FaPlus />
           </Button>
@@ -130,7 +142,10 @@ export default function SelectForm(props:
             type="button"
             className="removeButton"
             style={{ right: "-15px" }}
-            disabled={numOfSchemaRows === 1 ? true : false}
+            disabled={
+              numOfSchemaRows === 1 ? true : false ||
+              disableAddRemove
+            }
             onClick={handleRemove}
           > 
           <FaMinus />
