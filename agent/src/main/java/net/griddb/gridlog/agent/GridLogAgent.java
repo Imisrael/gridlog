@@ -100,7 +100,7 @@ class GridLogAgent {
                     logConf.interval = row.getInteger(2);
                     logConf.expiration_time = row.getInteger(3);
                     logConf.partition_unit = row.getString(4);
-                    String[] schemaArr = row.getStringArray(8);
+                    String[] schemaArr = row.getStringArray(9);
                     // for (String s: schemaArr) {
                     //     System.out.println("S: " + s + " " + logConf.logtype);
                     // }

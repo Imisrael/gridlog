@@ -42,7 +42,7 @@ export default function UserConfig() {
       <div className="flex justify-center m-5">
 
         <div className='cursor-pointer stroke-slate-500 hover:stroke-slate-700'>
-          <IconContext.Provider value={{ color: "blue", className: "global-class-name" }}>
+          <IconContext.Provider value={{ color: "darkcyan", className: "global-class-name" }}>
             <div>
               <IoMdArrowRoundBack className='h-10 w-10 ' onClick={() => navigate("/")} />
             </div>
