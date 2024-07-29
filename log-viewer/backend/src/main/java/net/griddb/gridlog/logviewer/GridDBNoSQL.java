@@ -31,6 +31,7 @@ class GridDBNoSQL {
     // partition_unit
     // regex_format
     // timestamp_position
+    // entry_sample
     // timestamp_format
     // schema string[]
 
@@ -49,6 +50,7 @@ class GridDBNoSQL {
             columnList.add(new ColumnInfo("partition_unit", GSType.STRING));
             columnList.add(new ColumnInfo("timestamp_position", GSType.INTEGER));
             columnList.add(new ColumnInfo("regex_format", GSType.STRING));
+            columnList.add(new ColumnInfo("entry_sample", GSType.STRING));
             columnList.add(new ColumnInfo("timestamp_format", GSType.STRING));
             columnList.add(new ColumnInfo("schema", GSType.STRING_ARRAY));
             containerInfo.setColumnInfoList(columnList);
@@ -70,16 +72,10 @@ class GridDBNoSQL {
             row.setString(4, data.partition_unit);
             row.setInteger(5, data.timestamp_position);
             row.setString(6, data.regex_format);
-            row.setString(7, data.timestamp_format);
-            row.setStringArray(8, data.schemaArr);
+            row.setString(7, data.entry_sample);
+            row.setString(8, data.timestamp_format);
+            row.setStringArray(9, data.schema);
             container.put(row);
-
-            // Row row2 = container.get("zzervers");
-            // String[] stringArray = row2.getStringArray(8);
-            // System.out.print("Get Row (Array) stringArray=");
-            // for ( String str : stringArray ){
-            // System.out.print(str + ", ");
-            // }
 
             container.close();
         } catch (Exception e) {
@@ -114,7 +110,7 @@ class GridDBNoSQL {
             Query<ConfigBody> query = container.query("select * where logtype = '" + logtype + "'");
             RowSet<ConfigBody> rs = query.fetch(false);
             while (rs.hasNext()) {
-                Collections.addAll(keyNames, rs.next().schemaArr);
+                Collections.addAll(keyNames, rs.next().schema);
               //  keyNames.add(rs.next().schema);
             }
         } catch (Exception e) {

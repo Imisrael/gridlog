@@ -147,9 +147,9 @@ private String generateAggQuery(List<QueryList> queries) {
         return ResponseEntity.ok(listOfNames);
     }
 
-    @RequestMapping(value = "/minTimestamp", method = RequestMethod.GET)
-    public ResponseEntity<?> getMinTimestamp(@RequestParam String containerName) {
-        String ts = gridDB.getMinTimestamp(containerName);
+    @RequestMapping(value = "/timestamp", method = RequestMethod.GET)
+    public ResponseEntity<?> getTimestamp(@RequestParam String containerName) {
+        HashMap<String, String> ts = gridDB.getTimestamp(containerName);
         return ResponseEntity.ok(ts);
     }
 

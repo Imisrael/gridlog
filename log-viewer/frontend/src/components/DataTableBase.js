@@ -8,6 +8,7 @@ function DataTableBase(props) {
             progressPending
             persistTableHead
             striped
+			fixedHeader={true}
 			{...props}
 		/>
 	);

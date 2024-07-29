@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { Link } from "react-router-dom";
-
 import { RadioButtonContext } from './components/RadioButtonContext.tsx'
 import { DateRangeContext } from './components/DateRangeContext.tsx';
 import useDidMountEffect from './hooks/useDidMountEffect.tsx';
@@ -75,34 +73,31 @@ const App = () => {
   const [containersToBeShown, setContainersToBeShown] = React.useState([]);
   const [progressPending, setProgressPending] = React.useState(true);
 
-  const minTime = async (hostname: string, logType: string): Promise<string> => {
+  const getTime = async (hostname: string, logType: string): Promise<{ min: string, max: string }> => {
     const containerName = "LOG_" + hostname + "_" + logType;
-    const addr = `${HOST}minTimestamp?containerName=${containerName}`
+    const addr = `${HOST}timestamp?containerName=${containerName}`
     const time = fetch(addr)
-      .then(res => res.text())
-      .then(text => text)
-      
-      return time;
+      .then(res => res.json())
+
+    return time;
   }
 
-  const queryGridDB = async (
+  const queryTimestamp = async (hostname: string, logType: string) => {
+    const times: { min: string, max: string } = await getTime(hostname, logType);
+    const minDateTime: any = new Date(times.min).getTime();
+    const maxDateTime: any = new Date(times.max).getTime();
+    setRange({ start: minDateTime, end: maxDateTime });
+  }
+
+  async function queryGridDB(
     hostname: string,
     logType: string,
     range: { start?: Date; end: Date; }
-  ) => {
+  ) {
+
     setProgressPending(true);
-    let start;
-    if (!hostname.includes("none") && !logType.includes("none")) {
-      const earliestTime: string = await minTime(hostname, logType);
-      const dateTime = new Date(earliestTime).getTime();
-      console.log("Datetime: ", dateTime);
-      start = dateTime;
-    } else {
-      start = range.start.valueOf();
-    }
 
-
-    console.log("start: ", start)
+    let start = range.start.valueOf();
     let end = range.end.valueOf();
 
     // if both Logype and Hostname are still none, do not fetch
@@ -141,10 +136,16 @@ const App = () => {
 
           const resultsObj = {}
           contNames.forEach(name => {
-            result[name].forEach(row => {
+            result[name].forEach((row: { [x: string]: any; }) => {
               let dateStr = new Date(row['timestamp']);
               let formattedTime = dateStr.toDateString() + " " + msToTime(dateStr.getTime());
               row['timestamp'] = formattedTime;
+              // forced to convert bool to string for some reason
+              for (const [key, value] of Object.entries(row)) {
+                if (typeof row[key] == 'boolean') {
+                  row[key] = value.toString()
+                }
+              }
             })
 
             resultsObj[name] = result[name];
@@ -195,6 +196,18 @@ const App = () => {
     end: end,
   });
 
+  useDidMountEffect(() => {
+    queryGridDB(selectHostname, selectLogType, range);
+  }, [range, selectHostname, selectLogType])
+
+  React.useEffect(() => {
+    if (!selectHostname.includes("none") && !selectLogType.includes("none")) {
+      queryTimestamp(selectHostname, selectLogType);
+    }
+  }, [selectHostname, selectLogType])
+
+
+
   // Query Builder section
   const [containerOptions, setContainerOptions] = React.useState(emptyOptions);
   const [userSelectedContainer, setUserSelectedContainer] = React.useState("");
@@ -229,11 +242,6 @@ const App = () => {
     console.log("limit option: ", value);
     setUserLimit(value);
   }
-
-  useDidMountEffect(() => {
-    //  console.log("range, selecthostname, range: ", selectHostname, selectLogType, range)
-    queryGridDB(selectHostname, selectLogType, range);
-  }, [range, selectHostname, selectLogType])
 
   const addNumOfRows = (newNum: number) => {
     newNum++

@@ -81,19 +81,21 @@ public class GridDB {
         return listOfContainerNames;
     }
 
-    public String getMinTimestamp(String containerName) {
-        StringBuilder time = new StringBuilder();
+    public HashMap<String, String> getTimestamp(String containerName) {
+        HashMap<String, String> times = new HashMap<>();
         try {
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT MIN(timestamp) from " + containerName);
-            while(rs.next())
-                time.append(rs.getString(1));
+            ResultSet rs = stmt.executeQuery("SELECT MIN(timestamp), MAX(timestamp) from " + containerName);
+            while(rs.next()) {
+                System.out.println(rs.getString(1) + " " + rs.getString(2));
+                times.put("min", rs.getString(1));
+                times.put("max", rs.getString(2));
+            }
         } catch (Exception e) {
             System.out.println("Error getting the min time for " + containerName);
             e.printStackTrace();
         }
-        System.out.println("Min time: " + time.toString());
-        return time.toString();
+        return times;
     }
 
     public List<String> getContainerNamesWithParameters(String hostname, String logtype) {
@@ -145,11 +147,9 @@ public class GridDB {
         String[] arr = cont.split("_", 3);
         String logType = arr[2];
 
+        System.out.println("logType: " + logType);
+
         List<String> schema = GridDBNoSQL.getConfigSchema(logType);
-        for (String s : schema) {
-            System.out.println("printing out schema arr");
-            System.out.println(s);
-        }
 
         retval.put("schema_" + contName, schema);
     }
@@ -158,7 +158,8 @@ public class GridDB {
         for (String container : listOfContainers) {
             String cont = container.replaceAll("RAWLOG", "LOG");
             String queryStr = ("SELECT * FROM " + cont
-                    + "  WHERE timestamp > TO_TIMESTAMP_MS(?) AND timestamp < TO_TIMESTAMP_MS(?) LIMIT 1000");
+                    + "  WHERE timestamp >= TO_TIMESTAMP_MS(?) AND timestamp <= TO_TIMESTAMP_MS(?) LIMIT 1000");
+            
 
             PreparedStatement stmt = con.prepareStatement(queryStr);
             long startMili = Long.parseLong(start);
@@ -194,7 +195,8 @@ public class GridDB {
                         Integer val = rs.getInt(i);
                         values.put(name, val);
                         valuesArr.add(val);
-                    } else if (rsmd.getColumnType(i) == Types.BOOLEAN) {
+                        // Types.Boolean == 16. The GridDB Returned BOOL col is returning -7 so we need to check for that
+                    } else if (rsmd.getColumnType(i) == -7) {
                         String name = rsmd.getColumnName(i);
                         Boolean val = rs.getBoolean(i);
                         values.put(name, val);
