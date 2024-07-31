@@ -58,12 +58,12 @@ export default function ConfigForm(props: {
       types = colTypes
     }
 
-    const schemaArr = []
+    const schema = []
     for (let i = 0; i < colNames.length; i++) {
-      schemaArr.push(colNames[i])
-      schemaArr.push(types[i])
+      schema.push(colNames[i])
+      schema.push(types[i])
     }
-    return schemaArr;
+    return schema;
   }
 
 
@@ -85,21 +85,21 @@ export default function ConfigForm(props: {
       setValue("expiration_time", exampleLogEntry.expiration_time);
       setValue("partition_unit", exampleLogEntry.partition_unit);
 
-      const schemaArr: string[] = genSchemaFromObj(exampleLogEntry.schema.columnNames, exampleLogEntry.schema.columnTypes);
-   //   console.log("Schema arr in gen function", schemaArr);
+      const schema: string[] = genSchemaFromObj(exampleLogEntry.schemaObj.columnNames, exampleLogEntry.schemaObj.columnTypes);
+   //   console.log("Schema arr in gen function", schema);
       // we take the length divded by two the array is in colname,coltype pairs
-      const n = schemaArr.length / 2
+      const n = schema.length / 2
       addNumOfRows(n);
 
 
       if (schemaRows.length === n) {
         const copy = schemaRows;
         let k = 0;
-        for (let i = 0; i < schemaArr.length; i += 2) {
-          copy[k].value[0] = schemaArr[i];
-          copy[k].value[1] = schemaArr[i + 1];
-          setValue("schema.columnNames." + k, schemaArr[i]);
-          setValue("schema.columnTypes." + k, schemaArr[i + 1]);
+        for (let i = 0; i < schema.length; i += 2) {
+          copy[k].value[0] = schema[i];
+          copy[k].value[1] = schema[i + 1];
+          setValue("schema.columnNames." + k, schema[i]);
+          setValue("schema.columnTypes." + k, schema[i + 1]);
           k++;
         }
         //    console.log("Schema rows to be pushed: ", copy)
@@ -146,18 +146,19 @@ export default function ConfigForm(props: {
   const onSubmit: SubmitHandler<NewLogEntryInputs> = (data) => {
     if (data !== null) {
       data.regex_format = String.raw`${data.regex_format}`;
+      data.schemaObj = data.schema
 
       console.log("Submitted data: ", data);
       // undefined array values come into play if a user makes a column row but doesn't use it
       // or if they make it and delete it... the undefined stays on the obj
       const colNames = data.schema.columnNames.filter(name => name !== undefined)
-      const colTypes: { value: string, label?: string }[] = data.schema.columnTypes.filter(type => type !== undefined)
+      const colTypes: { value: string, label?: string }[] = data.schemaObj.columnTypes.filter(type => type !== undefined)
 
 
 
-      const schemaArr: string[] = genSchemaFromObj(colNames, colTypes);
-      data.schemaArr = schemaArr;
-      console.log("pushing data: ", data, schemaArr)
+      const schema: string[] = genSchemaFromObj(colNames, colTypes);
+      data.schema = schema;
+      console.log("pushing data: ", data, schema)
       let url = `${HOST}createConfig`
       fetch(url, {
         method: "POST",
@@ -243,7 +244,6 @@ export default function ConfigForm(props: {
 
 
           {errors.logtype && <p> Sorry, it looks like this keyName (logtype) is already being tracked and used!</p>}
-          {errors.schema && <p> The schema field requires a format of `name,type` with no spaces (for example: hostname,string,logtype,string,timestamp,timestamp)</p>}
           <input 
             className="rounded-lg shadow-md text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium text-lg px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800" 
             type="submit" 

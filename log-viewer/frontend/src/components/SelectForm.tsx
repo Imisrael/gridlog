@@ -39,8 +39,6 @@ export default function SelectForm(props:
     //    setValue,
   } = props;
 
-  console.log("disable add remove: ", disableAddRemove);
-
   const [inputColName, setInputColName] = React.useState("column name");
   const [inputColType, setInputColType] = React.useState({ value: 'type', label: 'Column Type' });
 

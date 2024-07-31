@@ -21,8 +21,8 @@ export default function ManagedLogTypes(props:
     interval: 1000,
     expiration_time: 5,
     partition_unit: 'DAY',
-    schemaArr: ["timestamp,timestamp,hostname,string,log,string"],
-    schema: {
+    schema: ["timestamp,timestamp,hostname,string,log,string"],
+    schemaObj: {
       columnNames: ['timestamp', 'hostname', 'log'],
       columnTypes: [
         { value: 'timestamp' },
@@ -43,8 +43,8 @@ export default function ManagedLogTypes(props:
     interval: 2000,
     expiration_time: 10,
     partition_unit: 'DAY',
-    schemaArr: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"],
-    schema: {
+    schema: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"],
+    schemaObj: {
       columnNames: ['timestamp', 'statusCode', 'httpMethod', 'httpProtocol', 'hostname', 'requestedURL', 'clientIP', 'contentLength', 'gzip', 'userAgent'],
       columnTypes: [
         { value: 'timestamp' },
@@ -71,8 +71,8 @@ export default function ManagedLogTypes(props:
     interval: 2000,
     expiration_time: 10000,
     partition_unit: 'DAY',
-    schemaArr: [],
-    schema: {
+    schema: [],
+    schemaObj: {
       columnNames: [
         'timestamp',
         'username',
