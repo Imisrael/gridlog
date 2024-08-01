@@ -4,6 +4,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.time.*;
+import java.nio.file.*;
 
 import net.griddb.gridlog.agent.ConfigParser.LogsConfig; 
 
@@ -38,14 +39,14 @@ class LogReader extends Thread {
         long interval, 
         String path, 
         String griddbURL,
-        String expiration_time,
+        Integer expiration_time,
         String part_unit
         ) throws IOException {
         FileReader reader = new FileReader(file);
         BufferedReader buffered = new BufferedReader(reader);
         GridDBWriter gWriter = new GridDBWriter(hostname, logtype, path, griddbURL);
         String cn = getContainerName(hostname, logtype);
-        gridDB.createRAWLOGContainer(cn, expiration_time, part_unit); // creates container for specific logs
+        gridDB.createRAWLOGContainer(cn, expiration_time.toString(), part_unit); // creates container for specific logs
         gridDB.createLOGContainer(cn, "30", "DAY", logtype);
         gWriter.createRAWLOGWrites();
 
@@ -107,7 +108,7 @@ class LogReader extends Thread {
         String filePath = logConf.path.toString();
         String logtype = logConf.type.toString();
         long interval = logConf.interval;
-        String expiration_time = logConf.expiration_time;
+        Integer expiration_time = logConf.expiration_time;
         String part_unit = logConf.part_unit;
         File f = new File(filePath);
         try {
