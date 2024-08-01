@@ -1,4 +1,4 @@
-#volumes:
+# volumes:
 #  griddb:
 
 services:
@@ -19,6 +19,8 @@ services:
     environment:
       NOTIFICATION_MEMBER: 1
       GRIDDB_CLUSTER_NAME: myCluster
+    # volumes:
+    #   -  griddb:/var/lib/gridstore
     healthcheck:
         test: ["CMD", "gs_sh"]
         interval: 30s
@@ -69,8 +71,11 @@ services:
   
   log-processor:
     build:
-      dockerfile: ./Dockerfile.log-processor
+      context: processor
+      dockerfile: Dockerfile
     container_name: log-processor
+    volumes:
+    - ./data:/app/data
     depends_on:
       griddb-server:
         condition: service_healthy
@@ -99,6 +104,19 @@ services:
       - '2828:2828'
     expose: 
       - '2828'
+  
+  machine-learning:
+    build: 
+      context: ./machine-learning
+      dockerfile: Dockerfile
+    container_name: machine-learning
+    volumes:
+    - ./data:/app/data
+    profiles:
+      - donotstart
+    depends_on:
+      griddb-server:
+        condition: service_healthy
 
   agent_demo_1:
     build:

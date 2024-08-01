@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { NewLogEntryInputs } from '../utils/types';
 
+import { Button } from "flowbite-react";
+
 export default function ManagedLogTypes(props:
   {
     setExampleLogEntry: React.Dispatch<React.SetStateAction<NewLogEntryInputs>>;
@@ -19,13 +21,13 @@ export default function ManagedLogTypes(props:
     interval: 1000,
     expiration_time: 5,
     partition_unit: 'DAY',
-    schemaArr: ["timestamp,timestamp,hostname,string,log,string"],
-    schema: {
-      columnNames: ['timestamp','hostname','log'],
+    schema: ["timestamp,timestamp,hostname,string,log,string"],
+    schemaObj: {
+      columnNames: ['timestamp', 'hostname', 'log'],
       columnTypes: [
-        {value: 'timestamp'},
-        {value: 'string'},
-        {value: 'string'}
+        { value: 'timestamp' },
+        { value: 'string' },
+        { value: 'string' }
       ]
     }
   }
@@ -41,36 +43,36 @@ export default function ManagedLogTypes(props:
     interval: 2000,
     expiration_time: 10,
     partition_unit: 'DAY',
-    schemaArr: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"],
-    schema: {
-      columnNames: ['timestamp','statusCode','httpMethod', 'httpProtocol', 'hostname', 'requestedURL', 'clientIP', 'contentLength', 'gzip', 'userAgent'],
+    schema: ["timestamp,timestamp,statusCode,integer,httpMethod,string,httpProtocol,string,hostname,string,requestedURL,string,clientIP,string,contentLength,integer,gzip,string,userAgent,string"],
+    schemaObj: {
+      columnNames: ['timestamp', 'statusCode', 'httpMethod', 'httpProtocol', 'hostname', 'requestedURL', 'clientIP', 'contentLength', 'gzip', 'userAgent'],
       columnTypes: [
-        {value: 'timestamp'},
-        {value: 'integer'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'integer'},
-        {value: 'string'},
-        {value: 'string'}
+        { value: 'timestamp' },
+        { value: 'integer' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'integer' },
+        { value: 'string' },
+        { value: 'string' }
       ]
     }
   }
 
   const intrusionLogType: NewLogEntryInputs = {
-    logtype: "intrusion_benign",
-    regex_format: String.raw`^\[([^\]]+)\] (\w+ \w+|\w+) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) ([0-9]+) ([0-9]+) (\w+) (\w+) ((https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)) (HTTP/[0-9]*\.[0-9]+) (\w+ \w+|\w+) (\w+ \w+ )([A-Za-z]+/[A-Za-z]+) ([0-9]+) ([0-9]+) ((?:[^\\\"]|\\\\|\\\")*) ((https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)) (.?) (.?) (.?)`,
+    logtype: "httpML",
+    regex_format: String.raw`^\[([^\]]+)\] (\w+ \w+|\w+) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) ([0-9]+) ([0-9]+) (\w+) (\w+) ((https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*(?:;[0-9])?+)) (HTTP/[0-9]*\.[0-9]+) (\w+ \w+|\w+) (\w+ \w+ )((?:[A-Za-z]+/[A-Za-z]+;?)(?: [A-Za-z]+=[A-Za-z0-9]+-[A-Za-z0-9]+)?+(?:-[A-Za-z0-9]+)?(?:-[A-Za-z0-9]+)?) ([0-9]+) ([0-9]+) ((?:[^\\\"]|\\\\|\\\")*) ((https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\w+\/[0-9]+\.[0-9]+\.[0-9]+_[0-9]+?) (.?) (.?) (.?) ((?:True|False)) ((?:Set|Inferred))`,
     timestamp_position: 1,
     entry_sample: `[04/Jun/2014:00:15:02 -0700] Nico Rosberg 192.168.204.228 213.5.176.14 1500 200 TCP_HIT GET http://www.johnknightglass.co.uk/images/bifold-doors-uk.jpg HTTP/1.1 Internet Services low risk image/jpeg 648 937 Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729) http://www.johnknightglass.co.uk/ - 0 -`,
     timestamp_format: "d/MMM/yyyy:HH:mm:ss Z",
-    file_path: "/app/data/logs_proxy_format_benign.log",
+    file_path: "/app/data/http.log",
     interval: 2000,
     expiration_time: 10000,
     partition_unit: 'DAY',
-    schemaArr: [],
-    schema: {
+    schema: [],
+    schemaObj: {
       columnNames: [
         'timestamp',
         'username',
@@ -91,41 +93,45 @@ export default function ManagedLogTypes(props:
         'bytesReceived',
         'bytesSent',
         'userAgent',
-        'url2',
-        'url2Protocol',
-        'url2Prefix',
-        'url2Suffix',
+        'referrer',
+        'refProtocol',
+        'refPrefix',
+        'refSuffix',
         'meta1',
         'meta2',
         'meta3',
+        'exploit',
+        'labelType',
       ],
       columnTypes: [
-        {value: 'timestamp'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'integer'},
-        {value: 'integer'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'integer'},
-        {value: 'integer'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
-        {value: 'string'},
+        { value: 'timestamp' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'integer' },
+        { value: 'integer' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'integer' },
+        { value: 'integer' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'string' },
+        { value: 'bool' },
+        { value: 'string' },
       ]
     }
   }
@@ -141,26 +147,31 @@ export default function ManagedLogTypes(props:
     }
 
   }
-  const buttonStyle= "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
 
   return (
-    <>
-      <button className={buttonStyle}
-        data-logtype="tests"
-        onClick={buttonHandler}
-      >
-        Tests
-      </button>
-      <button className={buttonStyle}
-        data-logtype="server"
-        onClick={buttonHandler}
-      >
-        Server</button>
-        <button className={buttonStyle}
-        data-logtype="intrusion"
-        onClick={buttonHandler}
-      >
-        Intrusion</button>
-    </>
+      <Button.Group outline>
+        <Button
+          color="gray"
+          data-logtype="tests"
+          onClick={buttonHandler}
+        >
+          Tests
+        </Button>
+        <Button
+          color="gray"
+          data-logtype="server"
+          onClick={buttonHandler}
+        >
+          Server Logs
+        </Button>
+        <Button
+          color="gray"
+          data-logtype="intrusion"
+          onClick={buttonHandler}
+        >
+          Intrusion Detection
+        </Button>
+      </Button.Group>
+
   )
 }

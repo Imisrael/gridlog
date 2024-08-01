@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.net.InetAddress;
+import java.lang.Thread;
 import com.toshiba.mwcloud.gs.*;
 
 import net.griddb.gridlog.agent.LogsConfig;
@@ -99,7 +100,7 @@ class GridLogAgent {
                     logConf.interval = row.getInteger(2);
                     logConf.expiration_time = row.getInteger(3);
                     logConf.partition_unit = row.getString(4);
-                    String[] schemaArr = row.getStringArray(8);
+                    String[] schemaArr = row.getStringArray(9);
                     // for (String s: schemaArr) {
                     //     System.out.println("S: " + s + " " + logConf.logtype);
                     // }
@@ -113,6 +114,7 @@ class GridLogAgent {
                     }
                     LogReader logReader = new LogReader(logConf, logAgent.hostname, logAgent.griddbURL);
                     logReader.start();
+                    Thread.sleep(1000);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

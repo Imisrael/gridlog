@@ -9,7 +9,11 @@ const initialRows = [
   { idx: 1, numOfRows: 1, high: 1, value: [] },
 ]
 
-export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, keyNames: string[] }) {
+export default function ConfigForm(props: { 
+  exampleLogEntry: NewLogEntryInputs, 
+  keyNames: string[],
+  disableAddRemove: boolean
+}) {
 
   const {
     register,
@@ -24,7 +28,7 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
 
   const [submittedData, setSubmittedData] = React.useState({});
 
-  const { exampleLogEntry, keyNames } = props;
+  const { exampleLogEntry, keyNames, disableAddRemove } = props;
 
   function validateUniqueKeyName(key: string) {
     if (keyNames.length > 0 && keyNames !== null) {
@@ -54,12 +58,12 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       types = colTypes
     }
 
-    const schemaArr = []
+    const schema = []
     for (let i = 0; i < colNames.length; i++) {
-      schemaArr.push(colNames[i])
-      schemaArr.push(types[i])
+      schema.push(colNames[i])
+      schema.push(types[i])
     }
-    return schemaArr;
+    return schema;
   }
 
 
@@ -81,21 +85,21 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       setValue("expiration_time", exampleLogEntry.expiration_time);
       setValue("partition_unit", exampleLogEntry.partition_unit);
 
-      const schemaArr: string[] = genSchemaFromObj(exampleLogEntry.schema.columnNames, exampleLogEntry.schema.columnTypes);
-   //   console.log("Schema arr in gen function", schemaArr);
+      const schema: string[] = genSchemaFromObj(exampleLogEntry.schemaObj.columnNames, exampleLogEntry.schemaObj.columnTypes);
+   //   console.log("Schema arr in gen function", schema);
       // we take the length divded by two the array is in colname,coltype pairs
-      const n = schemaArr.length / 2
+      const n = schema.length / 2
       addNumOfRows(n);
 
 
       if (schemaRows.length === n) {
         const copy = schemaRows;
         let k = 0;
-        for (let i = 0; i < schemaArr.length; i += 2) {
-          copy[k].value[0] = schemaArr[i];
-          copy[k].value[1] = schemaArr[i + 1];
-          setValue("schema.columnNames." + k, schemaArr[i]);
-          setValue("schema.columnTypes." + k, schemaArr[i + 1]);
+        for (let i = 0; i < schema.length; i += 2) {
+          copy[k].value[0] = schema[i];
+          copy[k].value[1] = schema[i + 1];
+          setValue("schema.columnNames." + k, schema[i]);
+          setValue("schema.columnTypes." + k, schema[i + 1]);
           k++;
         }
         //    console.log("Schema rows to be pushed: ", copy)
@@ -142,18 +146,19 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
   const onSubmit: SubmitHandler<NewLogEntryInputs> = (data) => {
     if (data !== null) {
       data.regex_format = String.raw`${data.regex_format}`;
+      data.schemaObj = data.schema
 
       console.log("Submitted data: ", data);
       // undefined array values come into play if a user makes a column row but doesn't use it
       // or if they make it and delete it... the undefined stays on the obj
       const colNames = data.schema.columnNames.filter(name => name !== undefined)
-      const colTypes: { value: string, label?: string }[] = data.schema.columnTypes.filter(type => type !== undefined)
+      const colTypes: { value: string, label?: string }[] = data.schemaObj.columnTypes.filter(type => type !== undefined)
 
 
 
-      const schemaArr: string[] = genSchemaFromObj(colNames, colTypes);
-      data.schemaArr = schemaArr;
-      console.log("pushing data: ", data, schemaArr)
+      const schema: string[] = genSchemaFromObj(colNames, colTypes);
+      data.schema = schema;
+      console.log("pushing data: ", data, schema)
       let url = `${HOST}createConfig`
       fetch(url, {
         method: "POST",
@@ -169,7 +174,10 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
           result => {
             setSubmittedData(result)
             console.log("result", result)
-          }
+            if (result < 300) 
+              alert("Successfully Submitted")
+            else 
+              alert("There was an issue submitted your config. Please try again")          }
 
         )
     }
@@ -210,15 +218,15 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
       <FormProvider {...methods}>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <input type="text" placeholder="logtype" {...register("logtype", { required: true, validate: (value) => validateUniqueKeyName(value) })} />
-          <input type="text" placeholder="regex_format" {...register("regex_format", { required: true })} />
-          <input type="number" placeholder="timestamp position" {...register("timestamp_position", { required: true })} />
-          <input type="text" placeholder="entry sample" {...register("entry_sample", { required: true })} />
-          <input type="text" placeholder="timestamp format" {...register("timestamp_format", { required: true })} />
-          <input type="text" placeholder="file path" {...register("file_path", { required: true })} />
-          <input type="number" placeholder="interval" {...register("interval", { required: true })} />
-          <input type="number" placeholder="expiration time" {...register("expiration_time", { required: true })} />
-          <input type="text" placeholder="partition unit" {...register("partition_unit", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="logtype" {...register("logtype", { required: true, validate: (value) => validateUniqueKeyName(value) })} />
+          <textarea className="mb-5 rounded" placeholder="regex_format" {...register("regex_format", { required: true })} />
+          <input className="mb-5 rounded" type="number" placeholder="timestamp position" {...register("timestamp_position", { required: true })} />
+          <textarea className="mb-5 rounded" placeholder="entry sample" {...register("entry_sample", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="timestamp format" {...register("timestamp_format", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="file path" {...register("file_path", { required: true })} />
+          <input className="mb-5 rounded" type="number" placeholder="interval" {...register("interval", { required: true })} />
+          <input className="mb-5 rounded" type="number" placeholder="expiration time" {...register("expiration_time", { required: true })} />
+          <input className="mb-5 rounded" type="text" placeholder="partition unit" {...register("partition_unit", { required: true })} />
           {schemaRows.map(row => (
             <SelectForm
               key={row.idx}
@@ -230,13 +238,18 @@ export default function ConfigForm(props: { exampleLogEntry: NewLogEntryInputs, 
               numOfSchemaRows={numOfSchemaRows}
               lastRow={lastRow}
               rowsUpdated={rowsUpdated}
+              disableAddRemove={disableAddRemove}
             />
           ))}
 
 
           {errors.logtype && <p> Sorry, it looks like this keyName (logtype) is already being tracked and used!</p>}
-          {errors.schema && <p> The schema field requires a format of `name,type` with no spaces (for example: hostname,string,logtype,string,timestamp,timestamp)</p>}
-          <input type="submit" />
+          <input 
+            className="rounded-lg shadow-md text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium text-lg px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800" 
+            type="submit" 
+          />
+
+          
         </form>
       </FormProvider>
     </>

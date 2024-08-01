@@ -33,14 +33,30 @@ export const generateColumns = (schemas: { [x: string]: any[]; }) => {
 
     for (let i = 0; i < schemas[prop].length; i += 2) {
       const val = schemas[prop][i]
-      console.log("value of headername: ", val, i, prop)
+    //  console.log("value of headername: ", val, i, prop)
+
       let temp = {
+        id: val,
         name: val,
         selector: (row: { [x: string]: any; }) => row[val],
         right: false,
         grow: 1,
         wrap: true,
-        sortable: true
+        sortable: true,
+        hide: 'md',
+        conditionalCellStyles: [
+          {
+            when: row => row['exploit'] === 'true',
+            style: {
+              backgroundColor: 'rgba(234, 0, 0, 0.9)',
+              color: 'white',
+              '&:hover': {
+                cursor: 'pointer',
+              },
+            }
+          }
+
+        ]
       }
       listOfHeaderNames[name].push(temp)
     }

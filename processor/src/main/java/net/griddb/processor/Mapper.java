@@ -19,23 +19,24 @@ class Mapper {
                 return GSType.TIMESTAMP;
             case "string":
                 return GSType.STRING;
+            case "bool":
+                return GSType.BOOL;
         }
         return null;
 
     }
     public void setColumn(Row row, int index, Object value, String type) throws GSException {
 
-//        System.out.println("set Column("+index+") :"+type+" "+value);
+    //    System.out.println("set Column("+index+") :"+type+" "+value);
 
         // Value can end up null if the regex group doesn't exist (for example, www in a URL)
         if (value == null){
             row.setNull(index);
             return;
         }
-
+        String valString = value.toString();
         switch(type) {
             case "integer":
-                String valString = value.toString();
                 row.setInteger(index, Integer.parseInt(valString));
                 return;
             case "timestamp":
@@ -47,6 +48,9 @@ class Mapper {
                     row.setString(index, "emptyStr");
                 else 
                     row.setString(index, strVal);
+                return;
+            case "bool":
+                row.setBool(index, Boolean.parseBoolean(valString));
                 return;
         }
 

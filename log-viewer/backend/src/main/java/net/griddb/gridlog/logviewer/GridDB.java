@@ -64,7 +64,6 @@ public class GridDB {
         List<String> listOfContainerNames = new ArrayList<String>();
         try {
             Statement stmt = con.createStatement();
-
             ResultSet rs = stmt.executeQuery("SELECT DISTINCT name from RAWLOG_writes;");
 
             while (rs.next()) {
@@ -80,6 +79,23 @@ public class GridDB {
         }
 
         return listOfContainerNames;
+    }
+
+    public HashMap<String, String> getTimestamp(String containerName) {
+        HashMap<String, String> times = new HashMap<>();
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT MIN(timestamp), MAX(timestamp) from " + containerName);
+            while(rs.next()) {
+                System.out.println(rs.getString(1) + " " + rs.getString(2));
+                times.put("min", rs.getString(1));
+                times.put("max", rs.getString(2));
+            }
+        } catch (Exception e) {
+            System.out.println("Error getting the min time for " + containerName);
+            e.printStackTrace();
+        }
+        return times;
     }
 
     public List<String> getContainerNamesWithParameters(String hostname, String logtype) {
@@ -124,32 +140,26 @@ public class GridDB {
         String logtype) {
 
     HashMap<String, List<?>> retval = new HashMap<>();
-    
-  //  ConfigParser configParser = new ConfigParser();
-  //  configParser.parseConfig("conf/config.json");
 
+    // create schema portion of hashmap to be returned to frontend
     for (String cont : listOfContainers) {
         String contName = cont.replaceAll("RAWLOG", "LOG");
         String[] arr = cont.split("_", 3);
         String logType = arr[2];
 
-        List<String> schema = GridDBNoSQL.getConfigSchema(logType);
-        for (String s : schema) {
-            System.out.println("printing out schema arr");
-            System.out.println(s);
-        }
-        
+        System.out.println("logType: " + logType);
 
-    //    ArrayList<HashMap<String, String>> temp = configParser.rules.get(logType).schema;
+        List<String> schema = GridDBNoSQL.getConfigSchema(logType);
+
         retval.put("schema_" + contName, schema);
     }
 
     try {
-
         for (String container : listOfContainers) {
             String cont = container.replaceAll("RAWLOG", "LOG");
             String queryStr = ("SELECT * FROM " + cont
-                    + "  WHERE timestamp > TO_TIMESTAMP_MS(?) AND timestamp < TO_TIMESTAMP_MS(?) LIMIT 1000");
+                    + "  WHERE timestamp >= TO_TIMESTAMP_MS(?) AND timestamp <= TO_TIMESTAMP_MS(?) LIMIT 1000");
+            
 
             PreparedStatement stmt = con.prepareStatement(queryStr);
             long startMili = Long.parseLong(start);
@@ -160,13 +170,9 @@ public class GridDB {
 
             ResultSetMetaData rsmd = rs.getMetaData();
             int n = rsmd.getColumnCount();
+
             List<HashMap<String, ?>> results = new ArrayList<>();
-
             List<List<Object>> listOfLists = new ArrayList<List<Object>>();
-
-            // String temp_log_type = "";
-            // String[] arr = cont.split("_", 3);
-            // temp_log_type = arr[2];
 
             while (rs.next()) {
                 HashMap<String, Object> values = new HashMap<>();
@@ -187,6 +193,12 @@ public class GridDB {
                     } else if (rsmd.getColumnType(i) == Types.INTEGER) {
                         String name = rsmd.getColumnName(i);
                         Integer val = rs.getInt(i);
+                        values.put(name, val);
+                        valuesArr.add(val);
+                        // Types.Boolean == 16. The GridDB Returned BOOL col is returning -7 so we need to check for that
+                    } else if (rsmd.getColumnType(i) == -7) {
+                        String name = rsmd.getColumnName(i);
+                        Boolean val = rs.getBoolean(i);
                         values.put(name, val);
                         valuesArr.add(val);
                     }
@@ -235,6 +247,10 @@ public HashMap<String, List<?>> queryFromBuilder(String queryStr) {
                 } else if (rsmd.getColumnType(i) == Types.INTEGER) {
                     String name = rsmd.getColumnName(i);
                     Integer val = rs.getInt(i);
+                    values.put(name, val);
+                } else if (rsmd.getColumnType(i) == Types.BOOLEAN) {
+                    String name = rsmd.getColumnName(i);
+                    Boolean val = rs.getBoolean(i);
                     values.put(name, val);
                 }
             }

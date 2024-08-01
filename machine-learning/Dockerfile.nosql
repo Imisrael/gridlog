@@ -1,0 +1,43 @@
+FROM ubuntu:22.04
+
+RUN set -eux \
+ && apt update -y \
+ && apt install --no-install-recommends -y \
+ wget \
+ automake \
+ libpcre3 \ 
+ libpcre3-dev \
+ make \
+ autoconf \
+ autotools-dev \
+ g++ \
+ byacc \
+ libtool \
+ dpkg \
+ tar \
+ python3 \
+ python3-pip \ 
+ python3.10-venv
+
+
+WORKDIR /opt 
+RUN wget https://github.com/griddb/c_client/releases/download/v5.6.0/griddb-c-client_5.6.0_amd64.deb
+RUN dpkg -i griddb-c-client_5.6.0_amd64.deb
+
+
+RUN wget https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz
+RUN tar xvzf v4.0.2.tar.gz
+WORKDIR /opt/swig-4.0.2
+RUN ./autogen.sh
+RUN ./configure
+RUN make
+RUN make install
+
+WORKDIR /app
+ENV ENV_DIR /app/venv
+RUN python3 -m venv ${ENV_DIR}
+RUN . ${ENV_DIR}/bin/activate 
+RUN ${ENV_DIR}/bin/pip3 install pandas griddb-python numpy matplotlib
+
+COPY griddb.py /app/griddb.py
+CMD ["/app/venv/bin/python3", "griddb.py"]
