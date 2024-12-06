@@ -2,6 +2,7 @@ package net.griddb.gridlog.logviewer;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import com.toshiba.mwcloud.gs.GSException;
 
 import java.util.Date;
 import java.util.List;
@@ -13,17 +14,24 @@ import java.util.HashMap;
 public class GridDBController {
 
     GridDB gridDB;
+    GridDBNoSQL GridDBNoSQL;
 
-    public GridDBController() {
+    public GridDBController() throws GSException{
         super();
         gridDB = new GridDB();
+        try {
+            GridDBNoSQL = new GridDBNoSQL();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 
     static public class QueryList {
         // [[LOG_agent_nginx, statusCode, <, 666]]
     
         public String containerName;
-        public String logtype;
+        public String logType;
         public String operator;
         public String value;
         public String valuetype;
@@ -43,16 +51,9 @@ public class GridDBController {
         public Double avg;
         public Double min;
         public Double max;
-    }
+    }     
 
-    static public class ConfigBody {
-        public String logtype;
-        public String regex_format;
-        public int timestamp_position;
-        public String entry_sample;
-        public String timestamp_format;
-        public String[] schemaArr;
-    }
+
       
 
     private String generateQuery(List<QueryList> queries) {
@@ -63,7 +64,7 @@ public class GridDBController {
 
         for (QueryList val : queries) {
             System.out.println(val.valuetype);
-            str.append(val.logtype);
+            str.append(val.logType);
     
             str.append(" " + val.operator + " ");
     
@@ -97,7 +98,7 @@ private String generateAggQuery(List<QueryList> queries) {
 
 
     //SELECT count(humidity),avg(humidity),min(humidity),max(humidity) FROM
-    str.append("SELECT timestamp,count(" + first.logtype + "),");
+    str.append("SELECT timestamp,count(" + first.logType + "),");
     str.append(" avg(" + first.aggColumn + "),");
     str.append(" min(" + first.aggColumn + "),");
     str.append(" max(" + first.aggColumn + ")");
@@ -105,7 +106,7 @@ private String generateAggQuery(List<QueryList> queries) {
     str.append("timestamp > TO_TIMESTAMP_MS(" + first.start + ") AND ");
     str.append("timestamp < TO_TIMESTAMP_MS(" + first.end + ") AND ");
     for (QueryList val : queries) {
-        str.append(val.logtype);
+        str.append(val.logType);
 
         str.append(" " + val.operator + " ");
 
@@ -146,23 +147,29 @@ private String generateAggQuery(List<QueryList> queries) {
         return ResponseEntity.ok(listOfNames);
     }
 
+    @RequestMapping(value = "/timestamp", method = RequestMethod.GET)
+    public ResponseEntity<?> getTimestamp(@RequestParam String containerName) {
+        HashMap<String, String> ts = gridDB.getTimestamp(containerName);
+        return ResponseEntity.ok(ts);
+    }
+
     @RequestMapping(value = "/containersWithParameters", method = RequestMethod.GET)
     public ResponseEntity<?> containersWithParameters(
             @RequestParam String hostname,
-            @RequestParam("logtype") String logtype,
+            @RequestParam("logType") String logType,
             @RequestParam("start") String start,
             @RequestParam("end") String end) {
 
         HashMap<String, List<?>> retval = new HashMap<>();
 
-        if (!hostname.equals("none") && !logtype.equals("none")) {
+        if (!hostname.equals("none") && !logType.equals("none")) {
             List<String> listofContainers = new ArrayList<String>();
-            listofContainers.add("RAWLOG_" + hostname + "_" + logtype);
-            retval = gridDB.queryAllContainersFromUserInput(listofContainers, start, end, logtype);
+            listofContainers.add("RAWLOG_" + hostname + "_" + logType);
+            retval = gridDB.queryAllContainersFromUserInput(listofContainers, start, end, logType);
         } else {
-            List<String> listofContainers = gridDB.getContainerNamesWithParameters(hostname, logtype);
+            List<String> listofContainers = gridDB.getContainerNamesWithParameters(hostname, logType);
             System.out.println("list of containers else ");
-            retval = gridDB.queryAllContainersFromUserInput(listofContainers, start, end, logtype);
+            retval = gridDB.queryAllContainersFromUserInput(listofContainers, start, end, logType);
         }
 
         return ResponseEntity.ok(retval);
@@ -188,10 +195,18 @@ private String generateAggQuery(List<QueryList> queries) {
 
     @PostMapping("/createConfig")
     public ResponseEntity<?> createConfig (@RequestBody ConfigBody data) {
-        System.out.println(data.schemaArr);
-        System.out.println(data.regex_format);
 
+        GridDBNoSQL.createConfigContainer(data);
         return ResponseEntity.ok(200);
+    }
+
+    @RequestMapping(value = "/getConfigKeyNames", method = RequestMethod.GET)
+    public ResponseEntity<List<String>> getConfigKeyNames () {
+        List<String> keyNames = GridDBNoSQL.getConfigKeyNames();
+        for (String s : keyNames) {
+            System.out.println(s);
+        }
+        return ResponseEntity.ok(keyNames);
     }
 
 }

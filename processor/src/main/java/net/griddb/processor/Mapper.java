@@ -13,30 +13,44 @@ class Mapper {
     public GSType columnType(String type) {
 
         switch(type) {
-            case "INTEGER":
+            case "integer":
                 return GSType.INTEGER;
-            case "TIMESTAMP":
+            case "timestamp":
                 return GSType.TIMESTAMP;
-            case "STRING":
+            case "string":
                 return GSType.STRING;
+            case "bool":
+                return GSType.BOOL;
         }
         return null;
 
     }
     public void setColumn(Row row, int index, Object value, String type) throws GSException {
 
-        System.out.println("set Column("+index+") :"+type+" "+value);
+    //    System.out.println("set Column("+index+") :"+type+" "+value);
+
+        // Value can end up null if the regex group doesn't exist (for example, www in a URL)
+        if (value == null){
+            row.setNull(index);
+            return;
+        }
+        String valString = value.toString();
         switch(type) {
-            case "INTEGER":
-                String valString = value.toString();
-                System.out.println(Integer.parseInt(valString));
+            case "integer":
                 row.setInteger(index, Integer.parseInt(valString));
                 return;
-            case "TIMESTAMP":
+            case "timestamp":
                 row.setTimestamp(index, (Date)value);
                 return;
-            case "STRING":
-                row.setString(index, (String)value);
+            case "string":
+                String strVal = (String) value;
+                if (strVal.isEmpty()) 
+                    row.setString(index, "emptyStr");
+                else 
+                    row.setString(index, strVal);
+                return;
+            case "bool":
+                row.setBool(index, Boolean.parseBoolean(valString));
                 return;
         }
 

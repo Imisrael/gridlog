@@ -29,7 +29,7 @@ public class GridDB {
             prop.setProperty("user", username);
             prop.setProperty("password", password);
 
-            System.out.println(jdbcUrl);
+         //   System.out.println(jdbcUrl);
 
             con = DriverManager.getConnection(jdbcUrl, prop);
 
@@ -60,10 +60,8 @@ public class GridDB {
         }
     }
 
-    public void createLOGContainer(String containerName, String expirationTime, String timeUnit, String logType) {
-        ConfigParser configParser = new ConfigParser();
-        configParser.parseConfig("./conf/logs.json");
-        ArrayList<HashMap<String, String>> containerSchema = configParser.rules.get(logType).columns;
+    public void createLOGContainer(String containerName, String expirationTime, String timeUnit, ArrayList<HashMap<String, String>> containerSchema) {
+ 
         String contLogName = containerName.replaceAll("RAWLOG", "LOG");
         try {
             Statement stmt = con.createStatement(); 
@@ -72,19 +70,24 @@ public class GridDB {
             queryString.append(contLogName);
             queryString.append("( ");
             int i = 0;
+            String tsKey = "";
             for (HashMap<String, String> col : containerSchema) {
-                
-                queryString.append(col.get("name"));
+                String key = col.get("key");
+                String type = col.get("type");
+                queryString.append(key);
                 queryString.append(" ");
-                queryString.append(col.get("type"));
-                if (i == 0 ) { queryString.append(" NOT NULL");} // first timestamp NEEDs to be not null
+                queryString.append(type);
+                if ( type.equals("timestamp") && i == 0 ) { // type timestamp needs to be NOT NULL and be set as partition 
+                    queryString.append(" NOT NULL"); 
+                    i++;
+                    tsKey = key;
+                } 
                 queryString.append(", ");
-                i++;
             }
             queryString.setLength(queryString.length() - 2); //remove last comma and space for last column
             queryString.append(") WITH ");
-            queryString.append("(expiration_type='PARTITION',expiration_time=30,expiration_time_unit='DAY')");
-            queryString.append("PARTITION BY RANGE (timestamp) EVERY (30, DAY);");
+            queryString.append("(expiration_type='PARTITION',expiration_time="+expirationTime+",expiration_time_unit='"+timeUnit+"')");
+            queryString.append("PARTITION BY RANGE (" + tsKey + ") EVERY (30, DAY);"); // the first timestamp keyname needs to be used here
             System.out.println("LOG CONTAINER: " + queryString.toString());
             stmt.executeUpdate(queryString.toString());
 

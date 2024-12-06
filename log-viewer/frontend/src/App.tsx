@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { Link } from "react-router-dom";
-
 import { RadioButtonContext } from './components/RadioButtonContext.tsx'
 import { DateRangeContext } from './components/DateRangeContext.tsx';
 import useDidMountEffect from './hooks/useDidMountEffect.tsx';
@@ -23,6 +21,7 @@ import Sidebar from './components/Sidebar.tsx';
 import QueryBuilder from './components/QueryBuilder.tsx';
 import Chart from './components/Chart';
 import DataTableAgg from './components/DataTableAgg';
+import ConfigModal from './components/ConfigModal.tsx';
 
 import { Tabs } from 'flowbite-react';
 
@@ -32,9 +31,10 @@ const App = () => {
   const [error, setError] = React.useState(null);
   const [isLoaded, setIsLoaded] = React.useState(true);
   const [logData, setLogData] = React.useState(null);
-  const [LogTypes, setLogTypes] = React.useState([]);
-  const [Hostnames, setHostnames] = React.useState([]);
+  const [LogTypes, setLogTypes] = React.useState(["none"]);
+  const [Hostnames, setHostnames] = React.useState(["none"]);
   const [userLimit, setUserLimit] = React.useState(100);
+  const [openModal, setOpenModal] = React.useState(false);
 
 
   React.useEffect(() => { document.body.style.backgroundColor = 'rgb(226 232 240)' }, [])
@@ -45,16 +45,21 @@ const App = () => {
       .then(res => res.json())
       .then(
         (result) => {
-          const arrLogTypes = ["none"];
-          const arrHostnames = ["none"];
-          result.forEach((container: string) => {
-            arrLogTypes.push(extractLogType(container))
-            arrHostnames.push(extractHostname(container))
-          })
-          const uniqueHostnames = [...new Set(arrHostnames)];
-          const uniqueLogTypes = [...new Set(arrLogTypes)]
-          setHostnames(uniqueHostnames);
-          setLogTypes(uniqueLogTypes)
+          if (result.length > 0) {
+            const arrLogTypes = ["none"];
+            const arrHostnames = ["none"];
+            result.forEach((container: string) => {
+              arrLogTypes.push(extractLogType(container))
+              arrHostnames.push(extractHostname(container))
+            })
+            const uniqueHostnames = [...new Set(arrHostnames)];
+            const uniqueLogTypes = [...new Set(arrLogTypes)]
+            setHostnames(uniqueHostnames);
+            setLogTypes(uniqueLogTypes)
+          } else {
+            setOpenModal(true);
+          }
+
 
         },
         (error) => {
@@ -68,21 +73,42 @@ const App = () => {
   const [containersToBeShown, setContainersToBeShown] = React.useState([]);
   const [progressPending, setProgressPending] = React.useState(true);
 
-  const queryGridDB = (hostname, logtype, range) => {
+  const getTime = async (hostname: string, logType: string): Promise<{ min: string, max: string }> => {
+    const containerName = "LOG_" + hostname + "_" + logType;
+    const addr = `${HOST}timestamp?containerName=${containerName}`
+    const time = fetch(addr)
+      .then(res => res.json())
+
+    return time;
+  }
+
+  const queryTimestamp = async (hostname: string, logType: string) => {
+    const times: { min: string, max: string } = await getTime(hostname, logType);
+    const minDateTime: any = new Date(times.min).getTime();
+    const maxDateTime: any = new Date(times.max).getTime();
+    setRange({ start: minDateTime, end: maxDateTime });
+  }
+
+  async function queryGridDB(
+    hostname: string,
+    logType: string,
+    range: { start?: Date; end: Date; }
+  ) {
+
     setProgressPending(true);
+
     let start = range.start.valueOf();
-    console.log("start: ", start)
     let end = range.end.valueOf();
 
     // if both Logype and Hostname are still none, do not fetch
-    let queryStr = `${HOST}containersWithParameters?hostname=${hostname}&logtype=${logtype}&start=${start}&end=${end}`
+    let queryStr = `${HOST}containersWithParameters?hostname=${hostname}&logType=${logType}&start=${start}&end=${end}`
     console.log(queryStr)
 
     fetch(queryStr)
       .then(res => res.json())
       .then(
         (result) => {
-          console.log("results of getting hostname or logtypes: ", result)
+          console.log("results of getting hostname or logTypes: ", result)
 
           const keys = Object.keys(result);
           //   let contNames = keys.filter(word => word.includes("arr") && !word.includes("schema"));
@@ -92,6 +118,7 @@ const App = () => {
           let schemaNames = keys.filter(word => word.includes("schema"));
           // populating the schemas obj with the data
           schemaNames.forEach(s => schemas[s] = result[s])
+
           const listOfHeaderNames = generateColumns(schemas);
           setHeaderNames(listOfHeaderNames);
 
@@ -109,10 +136,16 @@ const App = () => {
 
           const resultsObj = {}
           contNames.forEach(name => {
-            result[name].forEach(row => {
+            result[name].forEach((row: { [x: string]: any; }) => {
               let dateStr = new Date(row['timestamp']);
               let formattedTime = dateStr.toDateString() + " " + msToTime(dateStr.getTime());
               row['timestamp'] = formattedTime;
+              // forced to convert bool to string for some reason
+              for (const [key, value] of Object.entries(row)) {
+                if (typeof row[key] == 'boolean') {
+                  row[key] = value.toString()
+                }
+              }
             })
 
             resultsObj[name] = result[name];
@@ -132,12 +165,12 @@ const App = () => {
   const [tables, setTables] = React.useState(null);
   React.useEffect(() => {
     if (containersToBeShown.length > 0) {
-      const tables = containersToBeShown.map(logtype =>
+      const tables = containersToBeShown.map(logType =>
 
         < DataTableNonAgg
-          columns={headerNames[logtype]}
-          data={logData[logtype]}
-          title={logtype}
+          columns={headerNames[logType]}
+          data={logData[logType]}
+          title={logType}
           progressPending={progressPending}
         />
 
@@ -162,6 +195,18 @@ const App = () => {
     start: start,
     end: end,
   });
+
+  useDidMountEffect(() => {
+    queryGridDB(selectHostname, selectLogType, range);
+  }, [range, selectHostname, selectLogType])
+
+  React.useEffect(() => {
+    if (!selectHostname.includes("none") && !selectLogType.includes("none")) {
+      queryTimestamp(selectHostname, selectLogType);
+    }
+  }, [selectHostname, selectLogType])
+
+
 
   // Query Builder section
   const [containerOptions, setContainerOptions] = React.useState(emptyOptions);
@@ -197,11 +242,6 @@ const App = () => {
     console.log("limit option: ", value);
     setUserLimit(value);
   }
-
-  useDidMountEffect(() => {
-    //  console.log("range, selecthostname, range: ", selectHostname, selectLogType, range)
-    queryGridDB(selectHostname, selectLogType, range);
-  }, [range, selectHostname, selectLogType])
 
   const addNumOfRows = (newNum: number) => {
     newNum++
@@ -252,7 +292,7 @@ const App = () => {
     }
     t[idx] = {
       "containerName": containerName,
-      "logtype": col,
+      "logType": col,
       "operator": oper,
       "value": val,
       "valuetype": columnType,
@@ -336,7 +376,9 @@ const App = () => {
             <Sidebar logTypes={LogTypes} hostnames={Hostnames} />
           </div>
 
-        {/* Home View */}
+          < ConfigModal openModal={openModal} setOpenModal={setOpenModal} />
+
+          {/* Home View */}
           <div className='flex'>
             <Tabs style="fullWidth">
               <Tabs.Item active title="Home">

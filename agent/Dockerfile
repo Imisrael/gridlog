@@ -1,5 +1,8 @@
 FROM maven
 
+RUN apt update \ 
+    && apt install zip unzip --no-install-recommends
+
 WORKDIR /app
 
 COPY pom.xml ./
@@ -7,7 +10,7 @@ COPY pom.xml ./
 COPY src ./src
 COPY tests ./tests
 COPY conf ./conf
-COPY access.log .
+COPY data ./data
 
 RUN mvn clean
 RUN mvn package

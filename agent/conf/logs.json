@@ -5,8 +5,8 @@
       "type":"tests",
       "path": "log-half-second.txt",
       "interval": 1000,
-      "expiration_time": 10000,
-      "part_unit": "DAY",
+      "expiration_time": 10,
+      "part_unit": 5,
       "columns": [
         {"name": "timestamp", "type": "TIMESTAMP", "index": ["tree"]},
         {"name": "hostname", "type": "STRING", "index": []},
@@ -18,8 +18,8 @@
       "type": "server",
       "path": "/nginx/logs/fallback_access.log",
       "interval": 2000,
-      "expiration_time": 10000,
-      "part_unit": "DAY",
+      "expiration_time": 10,
+      "part_unit": 5,
       "columns": [
         {"name": "timestamp", "type": "TIMESTAMP", "index": ["tree"]},
         {"name": "statusCode", "type": "INTEGER", "index": []},

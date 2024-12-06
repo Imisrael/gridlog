@@ -146,7 +146,7 @@ const QueryBuilder = (props:
       setLockButton(<></>);
     }
 
-  }, [props.numOfRows, props.aggregation, index, inputsToDisabled, activateSelection])
+  }, [props.numOfRows, props.aggregation, index, inputsToDisabled, activateSelection, lastRow])
 
   return (
     <>
